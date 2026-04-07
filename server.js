@@ -6,19 +6,20 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+// 🔧 Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// 🔌 Mongo
+// 🔌 Conexión MongoDB
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("✅ Conectado a MongoDB"))
-.catch(err => console.log("❌ ERROR:", err.message));
+.catch(err => console.log("❌ Error Mongo:", err.message));
 
-// 🔐 ADMIN (puedes cambiarlo luego)
+// 🔐 LOGIN SIMPLE
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "1234";
 
-// 🔐 Middleware simple de protección
+// 🔒 Middleware de seguridad
 function auth(req, res, next) {
     const token = req.headers["authorization"];
 
@@ -43,50 +44,63 @@ const Pedido = mongoose.model("Pedido", {
 
 // 🔑 LOGIN
 app.post("/api/login", (req, res) => {
-    console.log("LOGIN RECIBIDO:", req.body); // 👈 IMPORTANTE
-
     const { user, pass } = req.body;
 
-    if (user === "admin" && pass === "1234") {
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
         return res.json({ token: "admin-token" });
     }
 
     res.status(401).json({ error: "Credenciales incorrectas" });
 });
 
-// 🔹 PRODUCTOS (público ver)
+// 🛍️ PRODUCTOS
 app.get("/api/products", async (req, res) => {
     const products = await Product.find();
     res.json(products);
 });
 
-// 🔹 AGREGAR PRODUCTO (solo admin)
+// ➕ AGREGAR PRODUCTO (ADMIN)
 app.post("/api/products", auth, async (req, res) => {
     const { name, price } = req.body;
 
-    const nuevo = new Product({ name, price });
-    await nuevo.save();
+    const nuevo = new Product({
+        name,
+        price: Number(price)
+    });
 
+    await nuevo.save();
     res.json(nuevo);
 });
 
-// 🔹 GUARDAR PEDIDO (público)
+// 🧾 GUARDAR PEDIDO
 app.post("/api/pedidos", async (req, res) => {
     const { carrito, total } = req.body;
 
-    const nuevoPedido = new Pedido({ carrito, total });
-    await nuevoPedido.save();
+    const nuevo = new Pedido({ carrito, total });
+    await nuevo.save();
 
     res.json({ ok: true });
 });
 
-// 🔹 VER PEDIDOS (solo admin)
+// 📦 VER PEDIDOS (ADMIN)
 app.get("/api/pedidos", auth, async (req, res) => {
     const pedidos = await Pedido.find().sort({ fecha: -1 });
     res.json(pedidos);
 });
 
-// 🚀 SERVER
-app.listen(3000, () => {
-    console.log("🚀 http://localhost:3000");
+
+// 🌍 RUTAS BONITAS (IMPORTANTE)
+app.get("/admin", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/admin.html"));
+});
+
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "public/login.html"));
+});
+
+// 🚀 SERVIDOR
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor en puerto ${PORT}`);
 });

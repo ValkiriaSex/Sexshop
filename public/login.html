@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+</head>
+
+<body style="background:#111;color:white;text-align:center;font-family:Arial;">
+
+<h1>🔐 Login Admin</h1>
+
+<input type="text" id="user" placeholder="Usuario"><br><br>
+<input type="password" id="pass" placeholder="Contraseña"><br><br>
+
+<button onclick="login()">Entrar</button>
+
+<p id="msg"></p>
+
+<script>
+
+async function login() {
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+
+    try {
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ user, pass })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            window.location.href = "/admin.html";
+        } else {
+            document.getElementById("msg").textContent = data.error;
+        }
+
+    } catch (error) {
+        console.log("ERROR:", error);
+    }
+}
+
+</script>
+
+</body>
+</html>

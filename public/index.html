@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Sex Shop</title>
+
+    <style>
+        body {
+            background: black;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        .producto {
+            border: 1px solid white;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        button {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: darkred;
+        }
+
+        #carrito {
+            border-top: 2px solid white;
+            margin-top: 30px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🔥 Mi Sex Shop 🔥</h1>
+<h2>Productos</h2>
+
+<div id="productos"></div>
+
+<h2>🛒 Carrito</h2>
+<div id="carrito"></div>
+
+<script>
+let carrito = [];
+
+// Cargar productos
+fetch("/api/products")
+    .then(res => res.json())
+    .then(data => {
+        const contenedor = document.getElementById("productos");
+
+        data.forEach(p => {
+            const div = document.createElement("div");
+            div.classList.add("producto");
+
+            div.innerHTML = `
+                <h3>${p.name}</h3>
+                <p>Precio: $${p.price}</p>
+                <button onclick="comprar('${p.name}', ${p.price})">Comprar</button>
+            `;
+
+            contenedor.appendChild(div);
+        });
+    });
+
+// Agregar al carrito
+function comprar(nombre, precio) {
+    carrito.push({ nombre, precio });
+    mostrarCarrito();
+}
+
+// Mostrar carrito
+function mostrarCarrito() {
+    const divCarrito = document.getElementById("carrito");
+
+    divCarrito.innerHTML = "";
+
+    let total = 0;
+
+    carrito.forEach(p => {
+        total += p.precio;
+
+        divCarrito.innerHTML += `
+            <p>${p.nombre} - $${p.precio}</p>
+        `;
+    });
+
+    divCarrito.innerHTML += `
+        <h3>Total: $${total}</h3>
+        <button onclick="finalizarCompra()">Finalizar compra</button>
+    `;
+}
+
+// Finalizar compra (VERSIÓN FINAL SIN ERROR)
+function finalizarCompra() {
+
+    if (carrito.length === 0) {
+        alert("El carrito está vacío");
+        return;
+    }
+
+    let total = 0;
+    carrito.forEach(p => total += p.precio);
+
+    fetch("/api/pedidos", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            carrito: carrito,
+            total: total
+        })
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error("Error en servidor");
+        }
+        return res.json();
+    })
+    .then(data => {
+        alert("✅ Compra guardada correctamente 💳");
+        carrito = [];
+        mostrarCarrito();
+    })
+    .catch(err => {
+        alert("❌ Error al guardar pedido");
+        console.log("ERROR:", err);
+    });
+}
+</script>
+
+</body>
+</html>

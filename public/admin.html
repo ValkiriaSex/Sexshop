@@ -2,149 +2,105 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Panel Admin</title>
+<title>Admin</title>
 
 <style>
 body {
-    margin:0;
     font-family:Arial;
     background:#111;
     color:white;
+    text-align:center;
 }
 
-/* HEADER */
-header {
-    background:#000;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-button {
-    padding:8px 12px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-.logout {
-    background:red;
-    color:white;
-}
-
-/* CONTENEDOR */
-.container {
-    padding:20px;
-}
-
-/* FORM */
 input {
-    padding:8px;
+    padding:10px;
     margin:5px;
     border:none;
     border-radius:5px;
 }
 
-.add-btn {
-    background:#22c55e;
+button {
+    padding:10px;
+    margin:5px;
+    background:#e11d48;
     color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
 }
 
-/* PEDIDOS */
-.pedido {
-    background:#1e293b;
-    margin:15px 0;
-    padding:15px;
-    border-radius:10px;
+.product {
+    border-bottom:1px solid #444;
+    padding:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<header>
-    <h2>🔐 Panel Admin</h2>
-    <button class="logout" onclick="logout()">Cerrar sesión</button>
-</header>
+<script>
+// 🔐 PROTECCIÓN ADMIN (SOLO UNA VEZ)
+const token = localStorage.getItem("adminToken");
 
-<div class="container">
+if(token !== "admin123"){
+    window.location.href = "/admin-login.html";
+}
+</script>
 
-<h3>Agregar Producto</h3>
+<h2>Panel Admin</h2>
 
-<input type="text" id="nombre" placeholder="Nombre">
-<input type="number" id="precio" placeholder="Precio">
-<button class="add-btn" onclick="agregarProducto()">Agregar</button>
+<h3>Agregar producto</h3>
 
-<p id="mensaje"></p>
+<input id="name" placeholder="Nombre"><br>
+<input id="price" placeholder="Precio"><br>
 
-<hr>
+<button onclick="agregar()">Agregar</button>
 
-<h3>Pedidos</h3>
+<h3>Productos</h3>
 
-<div id="pedidos"></div>
-
-</div>
+<div id="lista"></div>
 
 <script>
 
-// 🔐 VERIFICAR LOGIN
-const token = localStorage.getItem("token");
+async function agregar(){
+    const name = document.getElementById("name").value;
+    const price = document.getElementById("price").value;
 
-if (!token) {
-    window.location.href = "/login.html";
-}
-
-// 🔒 LOGOUT
-function logout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login.html";
-}
-
-// ➕ AGREGAR PRODUCTO
-async function agregarProducto() {
-    const name = document.getElementById("nombre").value;
-    const price = document.getElementById("precio").value;
-
-    const res = await fetch("/api/products", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token
-        },
-        body: JSON.stringify({ name, price })
+    await fetch("/api/products", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({name, price})
     });
 
-    const data = await res.json();
-
-    document.getElementById("mensaje").textContent = "Producto agregado";
+    cargar();
 }
 
-// 📦 CARGAR PEDIDOS
-async function cargarPedidos() {
-    const res = await fetch("/api/pedidos", {
-        headers: {
-            "Authorization": token
-        }
+async function eliminar(id){
+    await fetch("/api/products/" + id, {
+        method:"DELETE"
     });
 
+    cargar();
+}
+
+async function cargar(){
+    const res = await fetch("/api/products");
     const data = await res.json();
 
-    const div = document.getElementById("pedidos");
+    const div = document.getElementById("lista");
     div.innerHTML = "";
 
     data.forEach(p => {
         div.innerHTML += `
-        <div class="pedido">
-            <p><b>ID:</b> ${p._id}</p>
-            <p><b>Total:</b> $${p.total}</p>
+        <div class="product">
+            ${p.name} - $${p.price}
+            <button onclick="eliminar('${p._id}')">Eliminar</button>
         </div>
         `;
     });
 }
 
-cargarPedidos();
+cargar();
 
 </script>
 

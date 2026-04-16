@@ -10,18 +10,18 @@
 body {
     margin:0;
     font-family:Arial;
-    background:#0f172a;
-    color:white;
+    background:#ffffff;
+    color:#111;
 }
 
 /* HEADER */
 header {
-    background:#020617;
+    background:white;
     padding:15px 30px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    border-bottom:1px solid #1e293b;
+    border-bottom:2px solid #e11d48;
 }
 
 /* LOGO */
@@ -35,6 +35,7 @@ header {
     padding:8px 15px;
     border-radius:20px;
     cursor:pointer;
+    color:white;
 }
 
 /* PRODUCTOS */
@@ -47,15 +48,15 @@ header {
 
 /* CARD */
 .card {
-    background:#020617;
+    background:white;
     border-radius:15px;
     overflow:hidden;
-    border:1px solid #1e293b;
+    border:1px solid #eee;
     transition:0.3s;
 }
 
 .card:hover {
-    transform:scale(1.03);
+    transform:translateY(-5px);
 }
 
 .card img {
@@ -69,7 +70,8 @@ header {
 }
 
 .price {
-    color:#22c55e;
+    color:#e11d48;
+    font-weight:bold;
     margin:10px 0;
 }
 
@@ -90,8 +92,8 @@ button {
     top:0;
     width:350px;
     height:100%;
-    background:#020617;
-    border-left:1px solid #1e293b;
+    background:white;
+    border-left:2px solid #e11d48;
     transition:0.3s;
     padding:20px;
 }
@@ -101,13 +103,14 @@ button {
 }
 
 .item {
-    border-bottom:1px solid #1e293b;
+    border-bottom:1px solid #eee;
     padding:10px 0;
 }
 
 .total {
     margin-top:20px;
     font-weight:bold;
+    color:#e11d48;
 }
 </style>
 </head>

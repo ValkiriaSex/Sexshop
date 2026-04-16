@@ -5,11 +5,12 @@
 <title>Sex Shop</title>
 
 <style>
+* { box-sizing: border-box; }
 
 body {
     margin:0;
     font-family:Arial;
-    background:#f5f5f5;
+    background:#f7f7f7;
     color:#111;
 }
 
@@ -20,7 +21,9 @@ header {
     display:flex;
     justify-content:space-between;
     align-items:center;
-    box-shadow:0 2px 5px rgba(0,0,0,0.1);
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    position:sticky;
+    top:0;
 }
 
 .logo {
@@ -28,14 +31,15 @@ header {
     font-weight:bold;
 }
 
-#carrito {
+.cart-btn {
     background:black;
     color:white;
-    padding:8px 12px;
+    padding:8px 15px;
     border-radius:20px;
+    cursor:pointer;
 }
 
-/* GRID PRODUCTOS */
+/* GRID */
 #productos {
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
@@ -48,7 +52,7 @@ header {
     background:white;
     border-radius:15px;
     overflow:hidden;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
     transition:0.3s;
 }
 
@@ -58,7 +62,7 @@ header {
 
 .card img {
     width:100%;
-    height:250px;
+    height:230px;
     object-fit:cover;
 }
 
@@ -66,17 +70,11 @@ header {
     padding:15px;
 }
 
-.card h3 {
-    margin:0;
-}
-
 .price {
-    font-size:18px;
     font-weight:bold;
     margin:10px 0;
 }
 
-/* BOTON */
 button {
     width:100%;
     padding:10px;
@@ -87,29 +85,90 @@ button {
     cursor:pointer;
 }
 
-button:hover {
-    background:#333;
+/* CARRITO PANEL */
+#panelCarrito {
+    position:fixed;
+    right:-350px;
+    top:0;
+    width:350px;
+    height:100%;
+    background:white;
+    box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+    transition:0.3s;
+    padding:20px;
+    overflow:auto;
+}
+
+#panelCarrito.open {
+    right:0;
+}
+
+.item {
+    border-bottom:1px solid #ddd;
+    padding:10px 0;
+}
+
+.total {
+    font-weight:bold;
+    margin-top:20px;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <header>
     <div class="logo">🔥 Sex Shop</div>
-    <div id="carrito">🛒 <span id="total">0</span></div>
+    <div class="cart-btn" onclick="toggleCarrito()">
+        🛒 <span id="total">0</span>
+    </div>
 </header>
 
 <div id="productos"></div>
+
+<div id="panelCarrito">
+    <h3>Carrito</h3>
+    <div id="items"></div>
+    <div class="total">Total: $<span id="totalPrecio">0</span></div>
+</div>
 
 <script>
 
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
+function guardar() {
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+}
+
 function actualizarCarrito() {
     document.getElementById("total").textContent = carrito.length;
+
+    const items = document.getElementById("items");
+    items.innerHTML = "";
+
+    let total = 0;
+
+    carrito.forEach(p => {
+        total += p.precio;
+
+        items.innerHTML += `
+        <div class="item">
+            ${p.nombre} - $${p.precio}
+        </div>`;
+    });
+
+    document.getElementById("totalPrecio").textContent = total;
+}
+
+function toggleCarrito() {
+    document.getElementById("panelCarrito").classList.toggle("open");
+}
+
+function comprar(nombre, precio) {
+    carrito.push({ nombre, precio });
+    guardar();
+    actualizarCarrito();
 }
 
 async function cargarProductos() {
@@ -122,7 +181,7 @@ async function cargarProductos() {
     data.forEach(p => {
         div.innerHTML += `
         <div class="card">
-            <img src="https://via.placeholder.com/300x250">
+            <img src="https://via.placeholder.com/300x230">
             <div class="card-content">
                 <h3>${p.name}</h3>
                 <div class="price">$${p.price}</div>
@@ -133,12 +192,6 @@ async function cargarProductos() {
         </div>
         `;
     });
-}
-
-function comprar(nombre, precio) {
-    carrito.push({ nombre, precio });
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-    actualizarCarrito();
 }
 
 cargarProductos();

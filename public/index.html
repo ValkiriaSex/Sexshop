@@ -1,141 +1,119 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Mi Sex Shop</title>
+<meta charset="UTF-8">
+<title>Mi Sex Shop</title>
 
-    <style>
-        body {
-            background: black;
-            color: white;
-            font-family: Arial;
-            text-align: center;
-        }
+<style>
+body {
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    margin:0;
+}
 
-        .producto {
-            border: 1px solid white;
-            margin: 20px;
-            padding: 20px;
-        }
+h1 {
+    text-align:center;
+    padding:20px;
+}
 
-        button {
-            background: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+#productos {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
 
-        button:hover {
-            background: darkred;
-        }
+.card {
+    background:#1e293b;
+    border-radius:15px;
+    padding:15px;
+    text-align:center;
+}
 
-        #carrito {
-            border-top: 2px solid white;
-            margin-top: 30px;
-            padding: 20px;
-        }
-    </style>
+.card img {
+    width:100%;
+    height:200px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+button {
+    background:#22c55e;
+    border:none;
+    padding:10px;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+button:hover {
+    background:#16a34a;
+}
+
+#carrito {
+    position:fixed;
+    top:10px;
+    right:10px;
+    background:#22c55e;
+    padding:10px;
+    border-radius:10px;
+}
+</style>
+
 </head>
+
 <body>
 
-<h1>🔥 Mi Sex Shop 🔥</h1>
-<h2>Productos</h2>
+<h1>🔥 Sex Shop 🔥</h1>
+
+<div id="carrito">
+🛒 <span id="total">0</span>
+</div>
 
 <div id="productos"></div>
 
-<h2>🛒 Carrito</h2>
-<div id="carrito"></div>
-
 <script>
-let carrito = [];
 
-// Cargar productos
-fetch("/api/products")
-    .then(res => res.json())
-    .then(data => {
-        const contenedor = document.getElementById("productos");
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-        data.forEach(p => {
-            const div = document.createElement("div");
-            div.classList.add("producto");
-
-            div.innerHTML = `
-                <h3>${p.name}</h3>
-                <p>Precio: $${p.price}</p>
-                <button onclick="comprar('${p.name}', ${p.price})">Comprar</button>
-            `;
-
-            contenedor.appendChild(div);
-        });
-    });
-
-// Agregar al carrito
-function comprar(nombre, precio) {
-    carrito.push({ nombre, precio });
-    mostrarCarrito();
+function actualizarCarrito() {
+    document.getElementById("total").textContent = carrito.length;
 }
 
-// Mostrar carrito
-function mostrarCarrito() {
-    const divCarrito = document.getElementById("carrito");
+async function cargarProductos() {
+    const res = await fetch("/api/products");
+    const data = await res.json();
 
-    divCarrito.innerHTML = "";
+    const div = document.getElementById("productos");
 
-    let total = 0;
+    div.innerHTML = "";
 
-    carrito.forEach(p => {
-        total += p.precio;
-
-        divCarrito.innerHTML += `
-            <p>${p.nombre} - $${p.precio}</p>
+    data.forEach(p => {
+        div.innerHTML += `
+        <div class="card">
+            <img src="https://via.placeholder.com/300x200" />
+            <h3>${p.name}</h3>
+            <p>$${p.price}</p>
+            <button onclick="comprar('${p.name}', ${p.price})">
+                Comprar
+            </button>
+        </div>
         `;
     });
-
-    divCarrito.innerHTML += `
-        <h3>Total: $${total}</h3>
-        <button onclick="finalizarCompra()">Finalizar compra</button>
-    `;
 }
 
-// Finalizar compra (VERSIÓN FINAL SIN ERROR)
-function finalizarCompra() {
+function comprar(nombre, precio) {
+    carrito.push({ nombre, precio });
 
-    if (carrito.length === 0) {
-        alert("El carrito está vacío");
-        return;
-    }
+    localStorage.setItem("carrito", JSON.stringify(carrito));
 
-    let total = 0;
-    carrito.forEach(p => total += p.precio);
-
-    fetch("/api/pedidos", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            carrito: carrito,
-            total: total
-        })
-    })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error("Error en servidor");
-        }
-        return res.json();
-    })
-    .then(data => {
-        alert("✅ Compra guardada correctamente 💳");
-        carrito = [];
-        mostrarCarrito();
-    })
-    .catch(err => {
-        alert("❌ Error al guardar pedido");
-        console.log("ERROR:", err);
-    });
+    actualizarCarrito();
 }
+
+cargarProductos();
+actualizarCarrito();
+
 </script>
 
 </body>

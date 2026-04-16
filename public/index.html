@@ -14,7 +14,7 @@ body {
     color:#111;
 }
 
-/* HEADER OSCURO */
+/* HEADER */
 header {
     background:#020617;
     padding:15px 30px;
@@ -23,9 +23,16 @@ header {
     align-items:center;
 }
 
-/* LOGO */
+/* LOGO ANIMADO */
 .logo img {
     height:50px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
 }
 
 /* BOTON CARRITO */
@@ -35,6 +42,16 @@ header {
     border-radius:20px;
     cursor:pointer;
     color:white;
+}
+
+/* BANNER */
+.banner {
+    background:linear-gradient(to right, #e11d48, #be123c);
+    color:white;
+    text-align:center;
+    padding:20px;
+    font-size:20px;
+    font-weight:bold;
 }
 
 /* PRODUCTOS */
@@ -55,7 +72,8 @@ header {
 }
 
 .card:hover {
-    transform:translateY(-5px);
+    transform:translateY(-8px) scale(1.02);
+    box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
 .card img {
@@ -74,6 +92,7 @@ header {
     margin:10px 0;
 }
 
+/* BOTON */
 button {
     width:100%;
     padding:10px;
@@ -82,6 +101,11 @@ button {
     background:#e11d48;
     color:white;
     cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover {
+    background:#be123c;
 }
 
 /* CARRITO */
@@ -125,6 +149,10 @@ button {
         🛒 <span id="total">0</span>
     </div>
 </header>
+
+<div class="banner">
+🔥 Envíos discretos - Compra segura - Entrega rápida 🔥
+</div>
 
 <div id="productos"></div>
 

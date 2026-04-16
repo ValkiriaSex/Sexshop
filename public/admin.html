@@ -2,115 +2,109 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin</title>
+<title>Sex Shop</title>
+
+<style>
+body {
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    margin:0;
+}
+
+h1 {
+    text-align:center;
+    padding:20px;
+}
+
+#productos {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+.card {
+    background:#1e293b;
+    border-radius:15px;
+    padding:15px;
+    text-align:center;
+}
+
+.card img {
+    width:100%;
+    height:200px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+button {
+    background:#22c55e;
+    border:none;
+    padding:10px;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+#carrito {
+    position:fixed;
+    top:10px;
+    right:10px;
+    background:#22c55e;
+    padding:10px;
+    border-radius:10px;
+}
+</style>
+
 </head>
 
-<body style="background:#0f172a;color:white;font-family:Arial;text-align:center;">
+<body>
+
+<h1>🔥 Sex Shop 🔥</h1>
+
+<div id="carrito">
+🛒 <span id="total">0</span>
+</div>
+
+<div id="productos"></div>
 
 <script>
-const token = localStorage.getItem("token");
+let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-if (!token) {
-    window.location.href = "/login.html";
-}
-</script>
-
-<h1>🔒 Panel Admin</h1>
-
-<button onclick="logout()" style="background:red;color:white;padding:10px;border:none;">
-Cerrar sesión
-</button>
-
-<hr>
-
-<h2>Agregar Producto</h2>
-
-<input id="nombre" placeholder="Nombre"><br><br>
-<input id="precio" placeholder="Precio"><br><br>
-
-<button onclick="agregar()">Agregar</button>
-
-<p id="msg"></p>
-
-<hr>
-
-<h2>📦 Pedidos</h2>
-<div id="pedidos"></div>
-
-<script>
-
-// LOGOUT
-function logout() {
-    localStorage.removeItem("token");
-    window.location.href = "/login.html";
+function actualizarCarrito() {
+    document.getElementById("total").textContent = carrito.length;
 }
 
-// AGREGAR PRODUCTO
-async function agregar() {
-    const name = document.getElementById("nombre").value;
-    const price = document.getElementById("precio").value;
-
-    const res = await fetch("/api/products", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": token
-        },
-        body: JSON.stringify({ name, price })
-    });
-
+async function cargarProductos() {
+    const res = await fetch("/api/products");
     const data = await res.json();
 
-    if (res.ok) {
-        document.getElementById("msg").textContent = "Producto agregado";
-
-        // limpiar campos
-        document.getElementById("nombre").value = "";
-        document.getElementById("precio").value = "";
-    } else {
-        document.getElementById("msg").textContent = data.error;
-    }
-}
-
-// CARGAR PEDIDOS
-async function cargar() {
-    const res = await fetch("/api/pedidos", {
-        headers: {
-            "Authorization": token
-        }
-    });
-
-    const data = await res.json();
-
-    const div = document.getElementById("pedidos");
-
-    if (!res.ok) {
-        div.innerHTML = "No autorizado";
-        return;
-    }
-
+    const div = document.getElementById("productos");
     div.innerHTML = "";
 
     data.forEach(p => {
-        let productos = "";
-
-        p.carrito.forEach(item => {
-            productos += `<p>🛒 ${item.nombre} - $${item.precio}</p>`;
-        });
-
         div.innerHTML += `
-            <div style="background:#1e293b;border-radius:10px;margin:15px;padding:15px;">
-                <p><b>ID:</b> ${p._id}</p>
-                ${productos}
-                <p><b>Total:</b> $${p.total}</p>
-                <p>${new Date(p.fecha).toLocaleString()}</p>
-            </div>
+        <div class="card">
+            <img src="https://via.placeholder.com/300x200">
+            <h3>${p.name}</h3>
+            <p>$${p.price}</p>
+            <button onclick="comprar('${p.name}', ${p.price})">
+                Comprar
+            </button>
+        </div>
         `;
     });
 }
 
-cargar();
+function comprar(nombre, precio) {
+    carrito.push({ nombre, precio });
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+    actualizarCarrito();
+}
 
+cargarProductos();
+actualizarCarrito();
 </script>
 
 </body>

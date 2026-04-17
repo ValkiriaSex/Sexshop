@@ -4,16 +4,29 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-// 🔥 CONEXIÓN MONGO (PEGA TU URL)
-mongoose.connect("mongodb+srv://yinethbueno2618_db_user:SexShopV1@cluster0.badwtvh.mongodb.net/?appName=Cluster0");
+// =====================
+// CONEXIÓN MONGO (DESDE ENV)
+// =====================
+const MONGO_URI = process.env.MONGO_URI;
 
-// MODELO
-const User = mongoose.model("User", {
-    email:String,
-    password:String
+mongoose.connect(MONGO_URI)
+.then(() => console.log("Mongo conectado"))
+.catch(err => {
+    console.log("Error Mongo:", err);
+    process.exit(1); // evita que el server quede roto
 });
 
-// middleware
+// =====================
+// MODELOS
+// =====================
+const User = mongoose.model("User", {
+    email: String,
+    password: String
+});
+
+// =====================
+// MIDDLEWARE
+// =====================
 app.use(express.json());
 app.use(express.static("public"));
 
@@ -36,48 +49,59 @@ app.post("/api/products", (req, res) => {
     };
 
     productos.push(nuevo);
-    res.json({ ok:true });
+    res.json({ ok: true });
 });
 
 app.delete("/api/products/:id", (req, res) => {
     productos = productos.filter(p => p._id !== req.params.id);
-    res.json({ ok:true });
+    res.json({ ok: true });
 });
 
 // =====================
-// USUARIOS (REAL)
+// USUARIOS (REGISTRO)
 // =====================
-app.post("/api/register", async (req,res)=>{
-    const { email, password } = req.body;
+app.post("/api/register", async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-    await User.create({ email, password });
+        await User.create({ email, password });
 
-    res.json({ ok:true });
-});
-
-app.post("/api/login", async (req,res)=>{
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email, password });
-
-    if(user){
-        return res.json({ token:"user123" });
+        res.json({ ok: true });
+    } catch (error) {
+        res.json({ error: "Error creando usuario" });
     }
+});
 
-    res.json({ error:"login incorrecto" });
+// =====================
+// LOGIN
+// =====================
+app.post("/api/login", async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email, password });
+
+        if (user) {
+            return res.json({ token: "user123" });
+        }
+
+        res.json({ error: "login incorrecto" });
+    } catch (error) {
+        res.json({ error: "error servidor" });
+    }
 });
 
 // =====================
 // ADMIN
 // =====================
-app.post("/api/admin-login", (req,res)=>{
+app.post("/api/admin-login", (req, res) => {
     const { user, pass } = req.body;
 
-    if(user === "admin" && pass === "1234"){
-        return res.json({ token:"admin123" });
+    if (user === "admin" && pass === "1234") {
+        return res.json({ token: "admin123" });
     }
 
-    res.json({ error:"error" });
+    res.json({ error: "error" });
 });
 
 // =====================

@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 // 🔥 CONEXIÓN MONGO (PEGA TU URL)
-mongoose.connect("TU_URL_MONGO");
+mongoose.connect("mongodb+srv://yinethbueno2618_db_user:SexShopV1@cluster0.badwtvh.mongodb.net/?appName=Cluster0");
 
 // MODELO
 const User = mongoose.model("User", {

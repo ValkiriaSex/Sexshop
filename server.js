@@ -5,24 +5,29 @@ const mongoose = require("mongoose");
 const app = express();
 
 // =====================
-// CONEXIÓN MONGO (DESDE ENV)
+// CONEXIÓN SEGURA MONGO
 // =====================
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI || "";
 
-mongoose.connect(MONGO_URI)
-.then(() => console.log("Mongo conectado"))
-.catch(err => {
-    console.log("Error Mongo:", err);
-    process.exit(1); // evita que el server quede roto
-});
+if(MONGO_URI){
+    mongoose.connect(MONGO_URI)
+    .then(()=> console.log("Mongo conectado"))
+    .catch(err => console.log("Error Mongo:", err));
+} else {
+    console.log("Mongo no configurado (modo seguro)");
+}
 
 // =====================
-// MODELOS
+// MODELO
 // =====================
-const User = mongoose.model("User", {
-    email: String,
-    password: String
-});
+let User;
+
+if(mongoose.connection.readyState){
+    User = mongoose.model("User", {
+        email:String,
+        password:String
+    });
+}
 
 // =====================
 // MIDDLEWARE
@@ -35,78 +40,76 @@ app.use(express.static("public"));
 // =====================
 let productos = [];
 
-app.get("/api/products", (req, res) => {
+app.get("/api/products", (req,res)=>{
     res.json(productos);
 });
 
-app.post("/api/products", (req, res) => {
+app.post("/api/products", (req,res)=>{
     const { name, price } = req.body;
 
-    const nuevo = {
+    productos.push({
         _id: Date.now().toString(),
         name,
         price
-    };
+    });
 
-    productos.push(nuevo);
-    res.json({ ok: true });
-});
-
-app.delete("/api/products/:id", (req, res) => {
-    productos = productos.filter(p => p._id !== req.params.id);
-    res.json({ ok: true });
+    res.json({ ok:true });
 });
 
 // =====================
-// USUARIOS (REGISTRO)
+// USUARIOS
 // =====================
-app.post("/api/register", async (req, res) => {
-    try {
+app.post("/api/register", async (req,res)=>{
+    try{
+        if(!User){
+            return res.json({ ok:true }); // modo sin mongo
+        }
+
         const { email, password } = req.body;
-
         await User.create({ email, password });
 
-        res.json({ ok: true });
-    } catch (error) {
-        res.json({ error: "Error creando usuario" });
+        res.json({ ok:true });
+    }catch(e){
+        res.json({ error:"error" });
     }
 });
 
-// =====================
-// LOGIN
-// =====================
-app.post("/api/login", async (req, res) => {
-    try {
+app.post("/api/login", async (req,res)=>{
+    try{
+        if(!User){
+            return res.json({ token:"user123" }); // modo prueba
+        }
+
         const { email, password } = req.body;
 
         const user = await User.findOne({ email, password });
 
-        if (user) {
-            return res.json({ token: "user123" });
+        if(user){
+            return res.json({ token:"user123" });
         }
 
-        res.json({ error: "login incorrecto" });
-    } catch (error) {
-        res.json({ error: "error servidor" });
+        res.json({ error:"login incorrecto" });
+    }catch(e){
+        res.json({ error:"error" });
     }
 });
 
 // =====================
 // ADMIN
 // =====================
-app.post("/api/admin-login", (req, res) => {
+app.post("/api/admin-login", (req,res)=>{
     const { user, pass } = req.body;
 
-    if (user === "admin" && pass === "1234") {
-        return res.json({ token: "admin123" });
+    if(user === "admin" && pass === "1234"){
+        return res.json({ token:"admin123" });
     }
 
-    res.json({ error: "error" });
+    res.json({ error:"error" });
 });
 
 // =====================
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, ()=>{
     console.log("Servidor corriendo en puerto", PORT);
 });

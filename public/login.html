@@ -6,64 +6,69 @@
 
 <style>
 body {
-    background:#111;
-    color:white;
+    margin:0;
     font-family:Arial;
+    background:#020617;
+    color:white;
     text-align:center;
-    margin-top:100px;
+}
+
+.container {
+    margin-top:80px;
+}
+
+.logo img {
+    height:60px;
+    margin-bottom:20px;
 }
 
 input {
-    padding:10px;
+    padding:12px;
+    width:250px;
     margin:10px;
-    width:220px;
+    border-radius:8px;
     border:none;
-    border-radius:5px;
 }
 
 button {
-    padding:10px;
-    width:240px;
+    padding:12px;
+    width:270px;
+    margin:10px;
+    border:none;
+    border-radius:8px;
     background:#e11d48;
     color:white;
-    border:none;
-    border-radius:5px;
     cursor:pointer;
+}
+
+.social {
+    background:white;
+    color:black;
 }
 </style>
 </head>
 
 <body>
 
+<div class="container">
+
+<div class="logo">
+    <img src="/logo.png">
+</div>
+
 <h2>Iniciar sesión</h2>
 
-<input id="email" placeholder="Correo"><br>
-<input id="password" type="password" placeholder="Contraseña"><br>
+<input placeholder="Correo"><br>
+<input type="password" placeholder="Contraseña"><br>
 
-<button onclick="login()">Entrar</button>
+<button>Entrar</button>
 
-<script>
-async function login(){
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+<h3>o continuar con</h3>
 
-    const res = await fetch("/api/login", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({email, password})
-    });
+<button class="social">Google</button>
+<button class="social">iCloud</button>
 
-    const data = await res.json();
-
-    if(data.token){
-        localStorage.setItem("token", data.token);
-        alert("Bienvenido");
-        window.location.href = "/";
-    } else {
-        alert("Datos incorrectos");
-    }
-}
-</script>
+</div>
 
 </body>
 </html>

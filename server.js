@@ -1,106 +1,93 @@
-require("dotenv").config();
-
-const express = require("express");
-const path = require("path");
-const mongoose = require("mongoose");
+import express from "express";
+import path from "path";
 
 const app = express();
 
-// 🔧 Middleware
+// middleware
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public"));
 
-// 🔌 Conexión MongoDB
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log("✅ Conectado a MongoDB"))
-.catch(err => console.log("❌ Error Mongo:", err.message));
+// =====================
+// BASE DE DATOS TEMPORAL
+// =====================
+let usuarios = [];
+let productos = [];
 
-// 🔐 LOGIN SIMPLE
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "1234";
-
-// 🔒 Middleware de seguridad
-function auth(req, res, next) {
-    const token = req.headers["authorization"];
-
-    if (token !== "admin-token") {
-        return res.status(401).json({ error: "No autorizado" });
-    }
-
-    next();
-}
-
-// 📦 MODELOS
-const Product = mongoose.model("Product", {
-    name: String,
-    price: Number
+// =====================
+// RUTA PRINCIPAL
+// =====================
+app.get("/", (req, res) => {
+    res.sendFile(path.resolve("public/index.html"));
 });
 
-const Pedido = mongoose.model("Pedido", {
-    carrito: Array,
-    total: Number,
-    fecha: { type: Date, default: Date.now }
+// =====================
+// PRODUCTOS
+// =====================
+app.get("/api/products", (req, res) => {
+    res.json(productos);
 });
 
-// 🔑 LOGIN
-app.post("/api/login", (req, res) => {
-    const { user, pass } = req.body;
-
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        return res.json({ token: "admin-token" });
-    }
-
-    res.status(401).json({ error: "Credenciales incorrectas" });
-});
-
-// 🛍️ PRODUCTOS
-app.get("/api/products", async (req, res) => {
-    const products = await Product.find();
-    res.json(products);
-});
-
-// ➕ AGREGAR PRODUCTO (ADMIN)
-app.post("/api/products", auth, async (req, res) => {
+app.post("/api/products", (req, res) => {
     const { name, price } = req.body;
 
-    const nuevo = new Product({
+    const nuevo = {
+        _id: Date.now().toString(),
         name,
-        price: Number(price)
-    });
+        price
+    };
 
-    await nuevo.save();
-    res.json(nuevo);
-});
-
-// 🧾 GUARDAR PEDIDO
-app.post("/api/pedidos", async (req, res) => {
-    const { carrito, total } = req.body;
-
-    const nuevo = new Pedido({ carrito, total });
-    await nuevo.save();
+    productos.push(nuevo);
 
     res.json({ ok: true });
 });
 
-// 📦 VER PEDIDOS (ADMIN)
-app.get("/api/pedidos", auth, async (req, res) => {
-    const pedidos = await Pedido.find().sort({ fecha: -1 });
-    res.json(pedidos);
+app.delete("/api/products/:id", (req, res) => {
+    const id = req.params.id;
+
+    productos = productos.filter(p => p._id !== id);
+
+    res.json({ ok: true });
 });
 
+// =====================
+// USUARIOS
+// =====================
+app.post("/api/register", (req, res) => {
+    const { email, password } = req.body;
 
-// 🌍 RUTAS BONITAS (IMPORTANTE)
-app.get("/admin", (req, res) => {
-    res.sendFile(path.join(__dirname, "public/admin.html"));
+    usuarios.push({ email, password });
+
+    res.json({ ok: true });
 });
 
-app.get("/login", (req, res) => {
-    res.sendFile(path.join(__dirname, "public/login.html"));
+app.post("/api/login", (req, res) => {
+    const { email, password } = req.body;
+
+    const user = usuarios.find(u => u.email === email && u.password === password);
+
+    if (user) {
+        return res.json({ token: "user123" });
+    }
+
+    res.json({ error: "login incorrecto" });
 });
 
-// 🚀 SERVIDOR
+// =====================
+// ADMIN LOGIN
+// =====================
+app.post("/api/admin-login", (req, res) => {
+    const { user, pass } = req.body;
+
+    if (user === "admin" && pass === "1234") {
+        return res.json({ token: "admin123" });
+    }
+
+    res.json({ error: "error" });
+});
+
+// =====================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor en puerto ${PORT}`);
+    console.log("Servidor corriendo en puerto", PORT);
 });

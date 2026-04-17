@@ -5,7 +5,11 @@
 <title>Valkiria Sex Shop</title>
 
 <style>
-body { margin:0; font-family:Arial; background:white; }
+body {
+    margin:0;
+    font-family:Arial;
+    background:white;
+}
 
 /* HEADER */
 header {
@@ -16,7 +20,18 @@ header {
     align-items:center;
 }
 
-.logo img { height:50px; }
+/* LOGO ANIMADO */
+.logo img {
+    height:50px;
+    animation: pulse 2s infinite;
+}
+
+/* ANIMACION LOGO */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
 
 .btn {
     padding:8px 12px;
@@ -24,10 +39,16 @@ header {
     cursor:pointer;
 }
 
-.login-btn { background:white; }
-.cart-btn { background:#e11d48; color:white; }
+.login-btn {
+    background:white;
+}
 
-/* BANNER (PEQUEÑO Y LIMPIO) */
+.cart-btn {
+    background:#e11d48;
+    color:white;
+}
+
+/* BANNER */
 .banner {
     background:#e11d48;
     color:white;
@@ -48,11 +69,20 @@ header {
     border:1px solid #eee;
     border-radius:10px;
     overflow:hidden;
+    transition:0.3s;
 }
 
-.card img { width:100%; }
+.card:hover {
+    transform:translateY(-5px);
+}
 
-.card-content { padding:10px; }
+.card img {
+    width:100%;
+}
+
+.card-content {
+    padding:10px;
+}
 
 button {
     background:#e11d48;
@@ -63,17 +93,32 @@ button {
     cursor:pointer;
 }
 
-/* WHATSAPP */
+/* WHATSAPP PRO ANIMADO */
 .whatsapp {
     position:fixed;
     bottom:20px;
     right:20px;
+    width:65px;
+    height:65px;
     background:#25D366;
-    color:white;
-    padding:15px;
     border-radius:50%;
-    text-decoration:none;
-    font-size:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+    animation: bounce 2s infinite;
+    z-index:999;
+}
+
+.whatsapp img {
+    width:35px;
+    height:35px;
+}
+
+/* ANIMACION WHATSAPP */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }
 </style>
 </head>
@@ -97,9 +142,9 @@ Compra segura - Envíos discretos
 
 <div id="productos"></div>
 
-<!-- WHATSAPP CON TU NUMERO -->
+<!-- BOTON WHATSAPP -->
 <a class="whatsapp" href="https://wa.me/573114676645" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg">
+    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
 </a>
 
 <script>

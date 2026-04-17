@@ -9,7 +9,7 @@ html, body {
     margin:0;
     font-family:Arial;
     background:white;
-    overflow-x:hidden; /* 🔥 quita la línea lateral */
+    overflow-x:hidden;
 }
 
 /* HEADER */
@@ -23,7 +23,7 @@ header {
 
 .logo img {
     height:50px;
-    animation: pulse 2s infinite; /* 🔥 animación logo */
+    animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -64,9 +64,14 @@ header {
 .card {
     border:1px solid #eee;
     border-radius:10px;
+    overflow:hidden;
 }
 
-.card img { width:100%; }
+.card img { 
+    width:100%;
+    height:250px;
+    object-fit:cover;
+}
 
 .card-content { padding:10px; }
 
@@ -79,7 +84,7 @@ button {
     cursor:pointer;
 }
 
-/* 🔥 CARRITO (ARREGLADO SIN LÍNEA) */
+/* CARRITO */
 #carritoPanel {
     position: fixed;
     top: 0;
@@ -109,7 +114,7 @@ button {
     display:flex;
     align-items:center;
     justify-content:center;
-    animation: bounce 2s infinite; /* 🔥 animación */
+    animation: bounce 2s infinite;
 }
 
 .whatsapp img { width:35px; }
@@ -138,19 +143,13 @@ button {
 
 <div id="productos"></div>
 
-<!-- 🔥 CARRITO -->
+<!-- CARRITO -->
 <div id="carritoPanel">
-
     <button onclick="toggleCarrito()">Cerrar</button>
-
     <h3>Carrito</h3>
-
     <div id="lista"></div>
-
     <h4>Total: $<span id="total">0</span></h4>
-
     <button onclick="enviarPedido()">Comprar por WhatsApp</button>
-
 </div>
 
 <!-- WHATSAPP -->
@@ -173,7 +172,7 @@ function agregar(nombre, precio){
     renderCarrito();
 }
 
-// render
+// render carrito
 function renderCarrito(){
     const lista = document.getElementById("lista");
     lista.innerHTML = "";
@@ -202,12 +201,12 @@ function eliminar(i){
     renderCarrito();
 }
 
-// abrir / cerrar
+// toggle carrito
 function toggleCarrito(){
     document.getElementById("carritoPanel").classList.toggle("open");
 }
 
-// cerrar si hace click afuera
+// cerrar al hacer click afuera
 document.addEventListener("click", function(e){
     const panel = document.getElementById("carritoPanel");
     const boton = document.querySelector(".cart-btn");
@@ -217,12 +216,23 @@ document.addEventListener("click", function(e){
     }
 });
 
-// enviar
+// enviar pedido
 function enviarPedido(){
     if(carrito.length === 0){
         alert("Carrito vacío");
         return;
     }
+
+    let total = document.getElementById("total").textContent;
+
+    fetch("/api/pedido", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+            items: carrito,
+            total
+        })
+    });
 
     let mensaje = "Hola, quiero comprar:\n";
 
@@ -230,38 +240,35 @@ function enviarPedido(){
         mensaje += `- ${p.nombre} ($${p.precio})\n`;
     });
 
-    mensaje += `Total: $${document.getElementById("total").textContent}`;
+    mensaje += `Total: $${total}`;
 
     window.open(`https://wa.me/573114676645?text=${encodeURIComponent(mensaje)}`);
 }
 
-// productos
+// 🔥 PRODUCTOS CON IMAGEN + DESCRIPCIÓN
 async function cargarProductos(){
-    try{
-        const res = await fetch("/api/products");
-        const data = await res.json();
+    const res = await fetch("/api/products");
+    const data = await res.json();
 
-        const div = document.getElementById("productos");
-        div.innerHTML = "";
+    const div = document.getElementById("productos");
+    div.innerHTML = "";
 
-        data.forEach(p=>{
-            div.innerHTML += `
-            <div class="card">
-                <img src="https://via.placeholder.com/300">
-                <div class="card-content">
-                    <h3>${p.name}</h3>
-                    <p>$${p.price}</p>
-                    <button onclick="agregar('${p.name}', ${p.price})">
-                        Agregar
-                    </button>
-                </div>
-            </div>`;
-        });
+    data.forEach(p=>{
+        div.innerHTML += `
+        <div class="card">
+            <img src="${p.image}">
+            <div class="card-content">
+                <h3>${p.name}</h3>
+                <p>${p.description || ""}</p>
+                <p>$${p.price}</p>
+                <button onclick="agregar('${p.name}', ${p.price})">
+                    Agregar
+                </button>
+            </div>
+        </div>`;
+    });
 
-        renderCarrito();
-    }catch(e){
-        console.log("Error cargando productos");
-    }
+    renderCarrito();
 }
 
 cargarProductos();

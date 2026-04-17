@@ -67,3 +67,11 @@ app.get("/api/pedidos", (req, res) => {
 // =====================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Servidor listo"));
+// ELIMINAR PRODUCTO
+app.delete("/api/products/:id", (req, res) => {
+    const id = Number(req.params.id);
+
+    productos = productos.filter(p => p.id !== id);
+
+    res.json({ ok: true });
+});

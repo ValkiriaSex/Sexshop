@@ -13,9 +13,7 @@ body {
     text-align:center;
 }
 
-.container {
-    margin-top:80px;
-}
+.container { margin-top:80px; }
 
 .logo img {
     height:60px;
@@ -41,9 +39,11 @@ button {
     cursor:pointer;
 }
 
-.social {
-    background:white;
-    color:black;
+.link {
+    display:block;
+    margin-top:10px;
+    color:#e11d48;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -58,17 +58,38 @@ button {
 
 <h2>Iniciar sesión</h2>
 
-<input placeholder="Correo"><br>
-<input type="password" placeholder="Contraseña"><br>
+<input id="email" placeholder="Correo"><br>
+<input id="password" type="password" placeholder="Contraseña"><br>
 
-<button>Entrar</button>
+<button onclick="login()">Entrar</button>
 
-<h3>o continuar con</h3>
-
-<button class="social">Google</button>
-<button class="social">iCloud</button>
+<span class="link" onclick="location.href='/register.html'">
+Crear cuenta
+</span>
 
 </div>
+
+<script>
+async function login(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/login", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({email, password})
+    });
+
+    const data = await res.json();
+
+    if(data.token){
+        alert("Bienvenido");
+        window.location.href = "/";
+    } else {
+        alert("Datos incorrectos");
+    }
+}
+</script>
 
 </body>
 </html>

@@ -5,135 +5,75 @@
 <title>Valkiria Sex Shop</title>
 
 <style>
-* { box-sizing: border-box; }
-
-body {
-    margin:0;
-    font-family:Arial;
-    background:#ffffff;
-    color:#111;
-}
+body { margin:0; font-family:Arial; background:white; }
 
 /* HEADER */
 header {
     background:#020617;
-    padding:15px 30px;
+    padding:15px;
     display:flex;
     justify-content:space-between;
     align-items:center;
 }
 
-/* LOGO ANIMADO */
-.logo img {
-    height:50px;
-    animation: pulse 2s infinite;
-}
+.logo img { height:50px; }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-    100% { transform: scale(1); }
-}
-
-/* BOTON CARRITO */
-.cart-btn {
-    background:#e11d48;
-    padding:8px 15px;
+.btn {
+    padding:8px 12px;
     border-radius:20px;
     cursor:pointer;
-    color:white;
 }
 
-/* BANNER */
+.login-btn { background:white; }
+.cart-btn { background:#e11d48; color:white; }
+
+/* BANNER (PEQUEÑO Y LIMPIO) */
 .banner {
-    background:linear-gradient(to right, #e11d48, #be123c);
+    background:#e11d48;
     color:white;
     text-align:center;
-    padding:20px;
-    font-size:20px;
-    font-weight:bold;
+    padding:6px;
+    font-size:14px;
 }
 
 /* PRODUCTOS */
 #productos {
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:25px;
-    padding:30px;
-}
-
-/* CARD */
-.card {
-    background:white;
-    border-radius:15px;
-    overflow:hidden;
-    border:1px solid #eee;
-    transition:0.3s;
-}
-
-.card:hover {
-    transform:translateY(-8px) scale(1.02);
-    box-shadow:0 10px 25px rgba(0,0,0,0.15);
-}
-
-.card img {
-    width:100%;
-    height:230px;
-    object-fit:cover;
-}
-
-.card-content {
-    padding:15px;
-}
-
-.price {
-    color:#e11d48;
-    font-weight:bold;
-    margin:10px 0;
-}
-
-/* BOTON */
-button {
-    width:100%;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    background:#e11d48;
-    color:white;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-button:hover {
-    background:#be123c;
-}
-
-/* CARRITO */
-#panelCarrito {
-    position:fixed;
-    right:-350px;
-    top:0;
-    width:350px;
-    height:100%;
-    background:white;
-    border-left:2px solid #e11d48;
-    transition:0.3s;
+    gap:20px;
     padding:20px;
 }
 
-#panelCarrito.open {
-    right:0;
+.card {
+    border:1px solid #eee;
+    border-radius:10px;
+    overflow:hidden;
 }
 
-.item {
-    border-bottom:1px solid #eee;
-    padding:10px 0;
+.card img { width:100%; }
+
+.card-content { padding:10px; }
+
+button {
+    background:#e11d48;
+    color:white;
+    border:none;
+    padding:10px;
+    width:100%;
+    cursor:pointer;
 }
 
-.total {
-    margin-top:20px;
-    font-weight:bold;
-    color:#e11d48;
+/* WHATSAPP */
+.whatsapp {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#25D366;
+    color:white;
+    padding:15px;
+    border-radius:50%;
+    text-decoration:none;
+    font-size:20px;
 }
 </style>
 </head>
@@ -145,83 +85,42 @@ button:hover {
         <img src="/logo.png">
     </div>
 
-    <div class="cart-btn" onclick="toggleCarrito()">
-        🛒 <span id="total">0</span>
+    <div>
+        <span class="btn login-btn" onclick="location.href='/login.html'">Login</span>
+        <span class="btn cart-btn">🛒 <span id="total">0</span></span>
     </div>
 </header>
 
 <div class="banner">
-🔥 Envíos discretos - Compra segura - Entrega rápida 🔥
+Compra segura - Envíos discretos
 </div>
 
 <div id="productos"></div>
 
-<div id="panelCarrito">
-    <h3>Carrito</h3>
-    <div id="items"></div>
-    <div class="total">Total: $<span id="totalPrecio">0</span></div>
-</div>
+<!-- WHATSAPP CON TU NUMERO -->
+<a class="whatsapp" href="https://wa.me/573114676645" target="_blank">💬</a>
 
 <script>
-
-let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-
-function guardar() {
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-}
-
-function actualizarCarrito() {
-    document.getElementById("total").textContent = carrito.length;
-
-    const items = document.getElementById("items");
-    items.innerHTML = "";
-
-    let total = 0;
-
-    carrito.forEach(p => {
-        total += p.precio;
-        items.innerHTML += `<div class="item">${p.nombre} - $${p.precio}</div>`;
-    });
-
-    document.getElementById("totalPrecio").textContent = total;
-}
-
-function toggleCarrito() {
-    document.getElementById("panelCarrito").classList.toggle("open");
-}
-
-function comprar(nombre, precio) {
-    carrito.push({ nombre, precio });
-    guardar();
-    actualizarCarrito();
-}
-
-async function cargarProductos() {
+async function cargarProductos(){
     const res = await fetch("/api/products");
     const data = await res.json();
 
     const div = document.getElementById("productos");
-    div.innerHTML = "";
 
     data.forEach(p => {
         div.innerHTML += `
         <div class="card">
-            <img src="https://via.placeholder.com/300x230">
+            <img src="https://via.placeholder.com/300">
             <div class="card-content">
                 <h3>${p.name}</h3>
-                <div class="price">$${p.price}</div>
-                <button onclick="comprar('${p.name}', ${p.price})">
-                    Comprar
-                </button>
+                <p>$${p.price}</p>
+                <button>Comprar</button>
             </div>
-        </div>
-        `;
+        </div>`;
     });
 }
 
 cargarProductos();
-actualizarCarrito();
-
 </script>
 
 </body>

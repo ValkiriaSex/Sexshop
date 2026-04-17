@@ -67,11 +67,27 @@ app.get("/api/pedidos", (req, res) => {
 // =====================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Servidor listo"));
-// ELIMINAR PRODUCTO
+// ELIMINAR
 app.delete("/api/products/:id", (req, res) => {
     const id = Number(req.params.id);
-
     productos = productos.filter(p => p.id !== id);
-
     res.json({ ok: true });
+});
+
+// EDITAR
+app.put("/api/products/:id", upload.single("image"), (req, res) => {
+    const id = Number(req.params.id);
+
+    const p = productos.find(x => x.id === id);
+    if(!p) return res.json({ error: true });
+
+    p.name = req.body.name;
+    p.price = req.body.price;
+    p.description = req.body.description;
+
+    if(req.file){
+        p.image = "/uploads/" + req.file.filename;
+    }
+
+    res.json({ ok:true });
 });

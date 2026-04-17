@@ -5,7 +5,12 @@
 <title>Valkiria Sex Shop</title>
 
 <style>
-body { margin:0; font-family:Arial; background:white; }
+html, body {
+    margin:0;
+    font-family:Arial;
+    background:white;
+    overflow-x:hidden; /* 🔥 quita la línea lateral */
+}
 
 /* HEADER */
 header {
@@ -18,11 +23,27 @@ header {
 
 .logo img {
     height:50px;
+    animation: pulse 2s infinite; /* 🔥 animación logo */
 }
 
-.btn { padding:8px 12px; border-radius:20px; cursor:pointer; }
+@keyframes pulse {
+    0%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+    100%{transform:scale(1);}
+}
+
+.btn {
+    padding:8px 12px;
+    border-radius:20px;
+    cursor:pointer;
+}
+
 .login-btn { background:white; }
-.cart-btn { background:#e11d48; color:white; }
+
+.cart-btn {
+    background:#e11d48;
+    color:white;
+}
 
 /* BANNER */
 .banner {
@@ -58,7 +79,7 @@ button {
     cursor:pointer;
 }
 
-/* 🔥 CARRITO CORREGIDO */
+/* 🔥 CARRITO (ARREGLADO SIN LÍNEA) */
 #carritoPanel {
     position: fixed;
     top: 0;
@@ -88,9 +109,15 @@ button {
     display:flex;
     align-items:center;
     justify-content:center;
+    animation: bounce 2s infinite; /* 🔥 animación */
 }
 
 .whatsapp img { width:35px; }
+
+@keyframes bounce {
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+}
 </style>
 </head>
 

@@ -26,18 +26,6 @@ button {
     border:none;
     cursor:pointer;
 }
-
-.tab {
-    margin:10px;
-    cursor:pointer;
-    display:inline-block;
-    padding:10px;
-    background:#111;
-}
-
-.active {
-    background:#e11d48;
-}
 </style>
 </head>
 
@@ -45,59 +33,57 @@ button {
 
 <h2>Panel Admin</h2>
 
-<div>
-    <span class="tab active" onclick="mostrar('productos')">Productos</span>
-    <span class="tab" onclick="mostrar('pedidos')">Pedidos</span>
-</div>
+<h3>Agregar producto</h3>
 
-<!-- PRODUCTOS -->
-<div id="productos">
+<input id="name" placeholder="Nombre"><br>
+<input id="price" placeholder="Precio"><br>
+<textarea id="desc" placeholder="Descripción"></textarea><br>
 
-    <h3>Agregar producto</h3>
+<!-- 🔥 CAMBIO IMPORTANTE -->
+<input type="file" id="image"><br>
 
-    <input id="name" placeholder="Nombre"><br>
-    <input id="price" placeholder="Precio"><br>
-    <input id="image" placeholder="URL Imagen"><br>
-    <textarea id="desc" placeholder="Descripción"></textarea><br>
+<button onclick="agregar()">Guardar</button>
 
-    <button onclick="agregar()">Guardar</button>
-
-    <h3>Lista</h3>
-    <div id="lista"></div>
-
-</div>
-
-<!-- PEDIDOS -->
-<div id="pedidos" style="display:none">
-    <h3>Pedidos</h3>
-    <div id="listaPedidos"></div>
-</div>
+<h3>Productos</h3>
+<div id="lista"></div>
 
 <script>
 
-// tabs
-function mostrar(tipo){
-    document.getElementById("productos").style.display = tipo==="productos"?"block":"none";
-    document.getElementById("pedidos").style.display = tipo==="pedidos"?"block":"none";
-}
-
-// agregar producto
+// 🔥 AGREGAR PRODUCTO (CORRECTO)
 async function agregar(){
+
     const name = document.getElementById("name").value;
     const price = document.getElementById("price").value;
-    const image = document.getElementById("image").value;
     const description = document.getElementById("desc").value;
+    const file = document.getElementById("image").files[0];
 
-    await fetch("/api/products", {
+    if(!file){
+        alert("Selecciona una imagen");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("description", description);
+    formData.append("image", file);
+
+    const res = await fetch("/api/products", {
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({name, price, image, description})
+        body: formData
     });
 
-    cargar();
+    const data = await res.json();
+
+    if(data.ok){
+        alert("Producto agregado");
+        cargar();
+    }else{
+        alert("Error al guardar");
+    }
 }
 
-// cargar productos
+// 🔥 CARGAR PRODUCTOS
 async function cargar(){
     const res = await fetch("/api/products");
     const data = await res.json();
@@ -116,28 +102,7 @@ async function cargar(){
     });
 }
 
-// cargar pedidos
-async function cargarPedidos(){
-    const res = await fetch("/api/pedidos");
-    const data = await res.json();
-
-    const div = document.getElementById("listaPedidos");
-    div.innerHTML = "";
-
-    data.forEach(p=>{
-        div.innerHTML += `
-        <div>
-            Pedido #${p.id}<br>
-            Total: $${p.total}<br>
-            ${p.items.map(i=>i.nombre).join(", ")}
-            <hr>
-        </div>`;
-    });
-}
-
-// auto cargar
 cargar();
-cargarPedidos();
 
 </script>
 

@@ -1,108 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Registro</title>
-
-<style>
-body {
-    margin:0;
-    font-family:Arial;
-    background:#020617;
-    color:white;
-    text-align:center;
-}
-
-.container { margin-top:80px; }
-
-.logo img {
-    height:60px;
-    margin-bottom:20px;
-}
-
-input {
-    padding:12px;
-    width:250px;
-    margin:10px;
-    border-radius:8px;
-    border:none;
-}
-
-button {
-    padding:12px;
-    width:270px;
-    margin:10px;
-    border:none;
-    border-radius:8px;
-    background:#e11d48;
-    color:white;
-    cursor:pointer;
-}
-
-.link {
-    color:#e11d48;
-    cursor:pointer;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="logo">
-    <img src="/logo.png">
-</div>
-
-<h2>Crear cuenta</h2>
-
-<input id="email" placeholder="Correo"><br>
-<input id="password" type="password" placeholder="Contraseña"><br>
-
-<button onclick="register()">Registrarme</button>
-
-<br>
-<span class="link" onclick="location.href='/login.html'">
-Ya tengo cuenta
-</span>
-
-</div>
+<input id="email">
+<input id="pass">
+<button onclick="reg()">Crear</button>
 
 <script>
-async function register(){
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if(!email || !password){
-        alert("Completa todos los campos");
-        return;
-    }
-
-    try{
-        const res = await fetch("/api/register", {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({
-                email: email,
-                pass: password   // 🔥 IMPORTANTE (antes estaba mal)
-            })
-        });
-
-        const data = await res.json();
-
-        if(data.ok){
-            alert("Cuenta creada correctamente");
-            window.location.href = "/login.html";
-        }else{
-            alert("No se pudo crear la cuenta");
-        }
-
-    }catch(e){
-        alert("Error de conexión");
-    }
+async function reg(){
+await fetch("/api/register",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({email:email.value,pass:pass.value})
+});
+alert("Cuenta creada");
 }
 </script>
-
-</body>
-</html>

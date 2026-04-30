@@ -3,223 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin</title>
-
 <style>
-body {
-    font-family:Arial;
-    background:#020617;
-    color:white;
-    text-align:center;
-}
-
-input, textarea {
-    padding:10px;
-    margin:5px;
-    width:260px;
-}
-
-button {
-    padding:10px;
-    margin:5px;
-    border:none;
-    cursor:pointer;
-    color:white;
-}
-
-.guardar { background:#e11d48; }
-.eliminar { background:red; }
-.editar { background:#2563eb; }
-
-.tab {
-    display:inline-block;
-    margin:10px;
-    padding:10px 20px;
-    background:#111;
-    cursor:pointer;
-    border-radius:5px;
-}
-
-.tab.active {
-    background:#e11d48;
-}
+body{font-family:Arial;background:#020617;color:white;text-align:center;}
+input,textarea{padding:10px;margin:5px;width:260px;}
+button{padding:10px;margin:5px;border:none;color:white;cursor:pointer;}
+.guardar{background:#e11d48;}
+.eliminar{background:red;}
 </style>
 </head>
-
 <body>
 
-<h2>Panel Admin</h2>
-
-<div>
-    <span class="tab active" onclick="mostrar('productos')">🛒 Productos</span>
-    <span class="tab" onclick="mostrar('pedidos')">📦 Ver pedidos</span>
-</div>
-
-<!-- PRODUCTOS -->
-<div id="productos">
-
-<h3>Agregar / Editar producto</h3>
+<h2>Admin</h2>
 
 <input id="name" placeholder="Nombre"><br>
 <input id="price" placeholder="Precio"><br>
-
-<!-- 🔥 AQUÍ ESTÁ LA CATEGORÍA -->
-<input id="category" placeholder="Categoría (ej: Vibradores)"><br>
-
+<input id="category" placeholder="Categoría"><br>
 <textarea id="desc" placeholder="Descripción"></textarea><br>
-
 <input type="file" id="image"><br>
 
 <button class="guardar" onclick="guardar()">Guardar</button>
 
-<h3>Lista</h3>
 <div id="lista"></div>
-
-</div>
-
-<!-- PEDIDOS -->
-<div id="pedidos" style="display:none">
-<h3>Pedidos</h3>
-<div id="listaPedidos"></div>
-</div>
 
 <script>
 
 let productos = [];
-let editandoId = null;
+let editando = null;
 
-// CAMBIAR TAB
-function mostrar(tipo){
-    document.getElementById("productos").style.display = tipo==="productos"?"block":"none";
-    document.getElementById("pedidos").style.display = tipo==="pedidos"?"block":"none";
-}
-
-// GUARDAR
 async function guardar(){
 
-    const name = document.getElementById("name").value;
-    const price = document.getElementById("price").value;
-    const category = document.getElementById("category").value; // 🔥 IMPORTANTE
-    const description = document.getElementById("desc").value;
-    const file = document.getElementById("image").files[0];
-
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("category", category); // 🔥 IMPORTANTE
-    formData.append("description", description);
 
-    if(file){
-        formData.append("image", file);
+    formData.append("name", name.value);
+    formData.append("price", price.value);
+    formData.append("category", category.value);
+    formData.append("description", desc.value);
+
+    if(image.files[0]){
+        formData.append("image", image.files[0]);
     }
 
-    if(editandoId){
-        await fetch("/api/products/" + editandoId, {
-            method:"PUT",
-            body: formData
-        });
-        editandoId = null;
-    } else {
-        await fetch("/api/products", {
-            method:"POST",
-            body: formData
-        });
+    if(editando){
+        await fetch("/api/products/"+editando,{method:"PUT",body:formData});
+        editando=null;
+    }else{
+        await fetch("/api/products",{method:"POST",body:formData});
     }
 
-    limpiar();
     cargar();
 }
 
-// CARGAR PRODUCTOS
 async function cargar(){
 
     const res = await fetch("/api/products");
     productos = await res.json();
 
-    const div = document.getElementById("lista");
-    div.innerHTML = "";
+    lista.innerHTML="";
 
     productos.forEach(p=>{
-        div.innerHTML += `
-        <div style="margin-bottom:20px; border-bottom:1px solid #444;">
-            <img src="${p.image}" width="80"><br>
+        lista.innerHTML+=`
+        <div>
+        ${p.name} - ${p.price}<br>
+        Categoria: ${p.category || "General"}<br>
 
-            <b>${p.name}</b><br>
-            $${p.price}<br>
-            Categoría: ${p.category || "General"}<br>
-            ${p.description}<br><br>
-
-            <button class="editar" onclick="editar(${p.id})">
-                ✏️ Editar
-            </button>
-
-            <button class="eliminar" onclick="eliminar(${p.id})">
-                🗑 Eliminar
-            </button>
-        </div>
-        `;
-    });
-}
-
-// EDITAR
-function editar(id){
-
-    const p = productos.find(x => x.id === id);
-    if(!p) return;
-
-    document.getElementById("name").value = p.name;
-    document.getElementById("price").value = p.price;
-    document.getElementById("category").value = p.category || "";
-    document.getElementById("desc").value = p.description;
-
-    editandoId = p.id;
-}
-
-// ELIMINAR
-async function eliminar(id){
-
-    if(!confirm("¿Eliminar producto?")) return;
-
-    await fetch("/api/products/" + id, {
-        method:"DELETE"
-    });
-
-    cargar();
-}
-
-// LIMPIAR
-function limpiar(){
-    document.getElementById("name").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("category").value = "";
-    document.getElementById("desc").value = "";
-    document.getElementById("image").value = "";
-}
-
-// PEDIDOS
-async function cargarPedidos(){
-
-    const res = await fetch("/api/pedidos");
-    const data = await res.json();
-
-    const div = document.getElementById("listaPedidos");
-    div.innerHTML = "";
-
-    data.forEach(p=>{
-        div.innerHTML += `
-        <div style="border-bottom:1px solid #444;">
-            Pedido #${p.id}<br>
-            Total: $${p.total}<br>
-            ${p.items.map(i=>i.nombre).join(", ")}
-            <br><br>
+        <button onclick="editar(${p.id})">Editar</button>
+        <button onclick="eliminar(${p.id})">Eliminar</button>
+        <hr>
         </div>`;
     });
 }
 
-// INICIO
+function editar(id){
+    const p = productos.find(x=>x.id===id);
+
+    name.value=p.name;
+    price.value=p.price;
+    category.value=p.category||"";
+    desc.value=p.description;
+
+    editando=id;
+}
+
+async function eliminar(id){
+    await fetch("/api/products/"+id,{method:"DELETE"});
+    cargar();
+}
+
 cargar();
-cargarPedidos();
 
 </script>
-
 </body>
 </html>

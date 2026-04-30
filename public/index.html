@@ -2,276 +2,118 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Valkiria Sex Shop</title>
+<title>Valkiria</title>
 
 <style>
-html, body {
-    margin:0;
-    font-family:Arial;
-    background:white;
-    overflow-x:hidden;
-}
+body{margin:0;font-family:Arial;background:#f5f5f5}
 
 /* HEADER */
-header {
-    background:#020617;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.logo img {
-    height:50px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%{transform:scale(1);}
-    50%{transform:scale(1.1);}
-    100%{transform:scale(1);}
-}
-
-.btn {
-    padding:8px 12px;
-    border-radius:20px;
-    cursor:pointer;
-}
-
-.login-btn { background:white; }
-
-.cart-btn {
-    background:#e11d48;
-    color:white;
-}
+header{background:#020617;color:#fff;padding:15px;display:flex;justify-content:space-between}
+input.search{padding:8px;width:200px}
 
 /* BANNER */
-.banner {
-    background:#e11d48;
-    color:white;
-    text-align:center;
-    padding:6px;
-}
+.banner img{width:100%;height:200px;object-fit:cover}
+
+/* CATEGORIAS */
+.categorias{display:flex;gap:10px;padding:10px;background:#fff;overflow-x:auto}
+.categorias button{padding:8px;border:none;border-radius:20px;background:#ddd}
 
 /* PRODUCTOS */
-#productos {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:20px;
-    padding:20px;
-}
+#productos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;padding:15px}
+.card{background:#fff;border-radius:10px;overflow:hidden;cursor:pointer}
+.card img{width:100%;height:200px;object-fit:cover}
 
-.card {
-    border:1px solid #eee;
-    border-radius:10px;
-    overflow:hidden;
-}
-
-.card img { 
-    width:100%;
-    height:250px;
-    object-fit:cover;
-}
-
-.card-content { padding:10px; }
-
-button {
-    background:#e11d48;
-    color:white;
-    border:none;
-    padding:10px;
-    width:100%;
-    cursor:pointer;
-}
-
-/* CARRITO */
-#carritoPanel {
-    position: fixed;
-    top: 0;
-    right: -320px;
-    width: 300px;
-    height: 100%;
-    background: white;
-    padding: 15px;
-    transition: right 0.3s ease;
-    box-shadow: -5px 0 10px rgba(0,0,0,0.2);
-    z-index: 999;
-}
-
-#carritoPanel.open {
-    right: 0;
-}
-
-/* WHATSAPP */
-.whatsapp {
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:65px;
-    height:65px;
-    background:#25D366;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    animation: bounce 2s infinite;
-}
-
-.whatsapp img { width:35px; }
-
-@keyframes bounce {
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
-}
+/* REDES */
+.redes{position:fixed;bottom:20px;left:20px}
+.redes a{display:block;margin:5px;font-size:24px}
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logo">
-        <img src="/logo.png">
-    </div>
-
-    <div>
-        <span class="btn login-btn" onclick="location.href='/login.html'">Login</span>
-        <span class="btn cart-btn" onclick="toggleCarrito()">🛒 <span id="count">0</span></span>
-    </div>
+    <h2>Valkiria</h2>
+    <input class="search" placeholder="Buscar..." onkeyup="buscar(this.value)">
 </header>
 
-<div class="banner">Compra segura - Envíos discretos</div>
-
-<div id="productos"></div>
-
-<!-- CARRITO -->
-<div id="carritoPanel">
-    <button onclick="toggleCarrito()">Cerrar</button>
-    <h3>Carrito</h3>
-    <div id="lista"></div>
-    <h4>Total: $<span id="total">0</span></h4>
-    <button onclick="enviarPedido()">Comprar por WhatsApp</button>
+<!-- BANNER (FLYER) -->
+<div class="banner">
+    <img id="bannerImg" src="https://via.placeholder.com/1200x200">
 </div>
 
-<!-- WHATSAPP -->
-<a class="whatsapp" href="https://wa.me/573114676645" target="_blank">
-    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
-</a>
+<!-- CATEGORIAS -->
+<div id="categorias" class="categorias"></div>
+
+<!-- PRODUCTOS -->
+<div id="productos"></div>
+
+<!-- REDES -->
+<div class="redes">
+    <a href="https://instagram.com" target="_blank">📸</a>
+    <a href="https://tiktok.com" target="_blank">🎵</a>
+</div>
 
 <script>
-let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
-// guardar
-function guardar(){
-    localStorage.setItem("carrito", JSON.stringify(carrito));
-}
+let productos = [];
+let filtrados = [];
 
-// agregar
-function agregar(nombre, precio){
-    carrito.push({nombre, precio});
-    guardar();
-    renderCarrito();
-}
-
-// render carrito
-function renderCarrito(){
-    const lista = document.getElementById("lista");
-    lista.innerHTML = "";
-
-    let total = 0;
-
-    carrito.forEach((p, i)=>{
-        total += Number(p.precio);
-
-        lista.innerHTML += `
-        <div style="margin-bottom:10px;">
-            ${p.nombre} - $${p.precio}
-            <button onclick="eliminar(${i})">❌</button>
-        </div>
-        `;
-    });
-
-    document.getElementById("total").textContent = total;
-    document.getElementById("count").textContent = carrito.length;
-}
-
-// eliminar
-function eliminar(i){
-    carrito.splice(i,1);
-    guardar();
-    renderCarrito();
-}
-
-// toggle carrito
-function toggleCarrito(){
-    document.getElementById("carritoPanel").classList.toggle("open");
-}
-
-// cerrar al hacer click afuera
-document.addEventListener("click", function(e){
-    const panel = document.getElementById("carritoPanel");
-    const boton = document.querySelector(".cart-btn");
-
-    if(!panel.contains(e.target) && !boton.contains(e.target)){
-        panel.classList.remove("open");
-    }
-});
-
-// enviar pedido
-function enviarPedido(){
-    if(carrito.length === 0){
-        alert("Carrito vacío");
-        return;
-    }
-
-    let total = document.getElementById("total").textContent;
-
-    fetch("/api/pedido", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-            items: carrito,
-            total
-        })
-    });
-
-    let mensaje = "Hola, quiero comprar:\n";
-
-    carrito.forEach(p=>{
-        mensaje += `- ${p.nombre} ($${p.precio})\n`;
-    });
-
-    mensaje += `Total: $${total}`;
-
-    window.open(`https://wa.me/573114676645?text=${encodeURIComponent(mensaje)}`);
-}
-
-// 🔥 PRODUCTOS CON IMAGEN + DESCRIPCIÓN
-async function cargarProductos(){
+// CARGAR
+async function cargar(){
     const res = await fetch("/api/products");
-    const data = await res.json();
+    productos = await res.json();
 
-    const div = document.getElementById("productos");
-    div.innerHTML = "";
+    filtrados = productos;
 
-    data.forEach(p=>{
-        div.innerHTML += `
+    categorias();
+    mostrar();
+}
+
+// CATEGORIAS
+function categorias(){
+    const cats = ["Todos", ...new Set(productos.map(p=>p.category||"General"))];
+    categorias.innerHTML="";
+
+    cats.forEach(c=>{
+        categorias.innerHTML += `<button onclick="filtrar('${c}')">${c}</button>`;
+    });
+}
+
+// FILTRAR
+function filtrar(cat){
+    if(cat==="Todos"){
+        filtrados = productos;
+    }else{
+        filtrados = productos.filter(p=>p.category===cat);
+    }
+    mostrar();
+}
+
+// BUSCAR
+function buscar(txt){
+    filtrados = productos.filter(p=>p.name.toLowerCase().includes(txt.toLowerCase()));
+    mostrar();
+}
+
+// MOSTRAR
+function mostrar(){
+    productosDiv = document.getElementById("productos");
+    productosDiv.innerHTML="";
+
+    filtrados.forEach(p=>{
+        productosDiv.innerHTML+=`
         <div class="card">
             <img src="${p.image}">
-            <div class="card-content">
-                <h3>${p.name}</h3>
-                <p>${p.description || ""}</p>
-                <p>$${p.price}</p>
-                <button onclick="agregar('${p.name}', ${p.price})">
-                    Agregar
-                </button>
+            <div style="padding:10px">
+                <b>${p.name}</b><br>
+                $${p.price}
             </div>
         </div>`;
     });
-
-    renderCarrito();
 }
 
-cargarProductos();
+cargar();
+
 </script>
 
 </body>

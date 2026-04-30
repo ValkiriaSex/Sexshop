@@ -29,6 +29,19 @@ button {
 .guardar { background:#e11d48; }
 .eliminar { background:red; }
 .editar { background:#2563eb; }
+
+.tab {
+    display:inline-block;
+    margin:10px;
+    padding:10px 20px;
+    background:#111;
+    cursor:pointer;
+    border-radius:5px;
+}
+
+.tab.active {
+    background:#e11d48;
+}
 </style>
 </head>
 
@@ -36,11 +49,21 @@ button {
 
 <h2>Panel Admin</h2>
 
-<h3>Agregar producto</h3>
+<div>
+    <span class="tab active" onclick="mostrar('productos')">🛒 Productos</span>
+    <span class="tab" onclick="mostrar('pedidos')">📦 Ver pedidos</span>
+</div>
+
+<!-- PRODUCTOS -->
+<div id="productos">
+
+<h3>Agregar / Editar producto</h3>
 
 <input id="name" placeholder="Nombre"><br>
 <input id="price" placeholder="Precio"><br>
-<input id="category" placeholder="Categoría"><br>
+
+<!-- 🔥 AQUÍ ESTÁ LA CATEGORÍA -->
+<input id="category" placeholder="Categoría (ej: Vibradores)"><br>
 
 <textarea id="desc" placeholder="Descripción"></textarea><br>
 
@@ -48,27 +71,41 @@ button {
 
 <button class="guardar" onclick="guardar()">Guardar</button>
 
-<h3>Productos</h3>
+<h3>Lista</h3>
 <div id="lista"></div>
+
+</div>
+
+<!-- PEDIDOS -->
+<div id="pedidos" style="display:none">
+<h3>Pedidos</h3>
+<div id="listaPedidos"></div>
+</div>
 
 <script>
 
 let productos = [];
 let editandoId = null;
 
-// ================= GUARDAR =================
+// CAMBIAR TAB
+function mostrar(tipo){
+    document.getElementById("productos").style.display = tipo==="productos"?"block":"none";
+    document.getElementById("pedidos").style.display = tipo==="pedidos"?"block":"none";
+}
+
+// GUARDAR
 async function guardar(){
 
     const name = document.getElementById("name").value;
     const price = document.getElementById("price").value;
-    const category = document.getElementById("category").value;
+    const category = document.getElementById("category").value; // 🔥 IMPORTANTE
     const description = document.getElementById("desc").value;
     const file = document.getElementById("image").files[0];
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("price", price);
-    formData.append("category", category);
+    formData.append("category", category); // 🔥 IMPORTANTE
     formData.append("description", description);
 
     if(file){
@@ -92,7 +129,7 @@ async function guardar(){
     cargar();
 }
 
-// ================= CARGAR =================
+// CARGAR PRODUCTOS
 async function cargar(){
 
     const res = await fetch("/api/products");
@@ -103,19 +140,27 @@ async function cargar(){
 
     productos.forEach(p=>{
         div.innerHTML += `
-        <div style="border-bottom:1px solid #444; margin:10px;">
+        <div style="margin-bottom:20px; border-bottom:1px solid #444;">
             <img src="${p.image}" width="80"><br>
-            ${p.name} - $${p.price}<br>
-            Categoría: ${p.category || "General"}<br>
 
-            <button class="editar" onclick="editar(${p.id})">Editar</button>
-            <button class="eliminar" onclick="eliminar(${p.id})">Eliminar</button>
+            <b>${p.name}</b><br>
+            $${p.price}<br>
+            Categoría: ${p.category || "General"}<br>
+            ${p.description}<br><br>
+
+            <button class="editar" onclick="editar(${p.id})">
+                ✏️ Editar
+            </button>
+
+            <button class="eliminar" onclick="eliminar(${p.id})">
+                🗑 Eliminar
+            </button>
         </div>
         `;
     });
 }
 
-// ================= EDITAR =================
+// EDITAR
 function editar(id){
 
     const p = productos.find(x => x.id === id);
@@ -129,10 +174,10 @@ function editar(id){
     editandoId = p.id;
 }
 
-// ================= ELIMINAR =================
+// ELIMINAR
 async function eliminar(id){
 
-    if(!confirm("Eliminar producto?")) return;
+    if(!confirm("¿Eliminar producto?")) return;
 
     await fetch("/api/products/" + id, {
         method:"DELETE"
@@ -141,7 +186,7 @@ async function eliminar(id){
     cargar();
 }
 
-// ================= LIMPIAR =================
+// LIMPIAR
 function limpiar(){
     document.getElementById("name").value = "";
     document.getElementById("price").value = "";
@@ -150,8 +195,29 @@ function limpiar(){
     document.getElementById("image").value = "";
 }
 
-// ================= INICIO =================
+// PEDIDOS
+async function cargarPedidos(){
+
+    const res = await fetch("/api/pedidos");
+    const data = await res.json();
+
+    const div = document.getElementById("listaPedidos");
+    div.innerHTML = "";
+
+    data.forEach(p=>{
+        div.innerHTML += `
+        <div style="border-bottom:1px solid #444;">
+            Pedido #${p.id}<br>
+            Total: $${p.total}<br>
+            ${p.items.map(i=>i.nombre).join(", ")}
+            <br><br>
+        </div>`;
+    });
+}
+
+// INICIO
 cargar();
+cargarPedidos();
 
 </script>
 

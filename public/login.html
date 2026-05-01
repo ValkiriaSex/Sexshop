@@ -1,35 +1,77 @@
 <!DOCTYPE html>
 <html>
-<body style="background:#020617;color:white;text-align:center;margin-top:80px">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
 
-<h2>Login</h2>
+<style>
+body {
+    background:#020617;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    margin-top:80px;
+}
+
+input {
+    padding:12px;
+    margin:10px;
+    width:260px;
+    border-radius:8px;
+    border:none;
+}
+
+button {
+    padding:12px;
+    width:280px;
+    background:#e11d48;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.link{
+    color:#e11d48;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Iniciar sesión</h2>
 
 <input id="email" placeholder="Correo"><br>
 <input id="password" type="password" placeholder="Contraseña"><br>
 
 <button onclick="login()">Entrar</button>
 
+<br><br>
+<span class="link" onclick="location.href='/register.html'">
+Crear cuenta
+</span>
+
 <script>
 async function login(){
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
     const res = await fetch("/api/login",{
         method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
+        headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
 
     if(data.ok){
+        localStorage.setItem("user", email);
         alert("Bienvenido");
         location.href="/";
     }else{
-        alert("Datos incorrectos");
+        alert("Correo o contraseña incorrectos");
     }
 }
 </script>

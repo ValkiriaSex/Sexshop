@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<body style="background:#020617;color:white;text-align:center;margin-top:80px">
+
+<h2>Admin</h2>
+
+<input id="email" placeholder="Correo"><br>
+<input id="password" type="password" placeholder="Contraseña"><br>
+
+<button onclick="login()">Entrar</button>
+
+<script>
+async function login(){
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/admin/login",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if(data.ok){
+        localStorage.setItem("admin", JSON.stringify({ email, password }));
+        location.href="/admin.html";
+    }else{
+        alert("Acceso denegado");
+    }
+}
+</script>
+
+</body>
+</html>

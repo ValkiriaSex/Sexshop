@@ -5,168 +5,79 @@
 <title>Valkiria Sex Shop</title>
 
 <style>
-body{margin:0;font-family:Arial;background:white}
+body{margin:0;font-family:Arial}
 
 /* HEADER */
 header{
-    background:#020617;
-    color:white;
-    padding:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+  background:#020617;color:white;padding:15px;
+  display:flex;justify-content:space-between;align-items:center
 }
+.logo img{height:50px;animation:pulse 2s infinite}
+@keyframes pulse{50%{transform:scale(1.1)}}
 
-.logo img{
-    height:50px;
-    animation: pulse 2s infinite;
+.actions{display:flex;gap:10px;align-items:center}
+.btn-auth{
+  background:#e11d48;color:white;border:none;
+  padding:8px 12px;border-radius:20px;cursor:pointer
 }
-
-@keyframes pulse{
-    0%{transform:scale(1)}
-    50%{transform:scale(1.1)}
-    100%{transform:scale(1)}
-}
-
 .cart-btn{
-    background:#e11d48;
-    color:white;
-    padding:8px 12px;
-    border-radius:20px;
-    cursor:pointer;
+  background:#111;color:white;padding:8px 12px;border-radius:20px;cursor:pointer
 }
 
-/* BANNER */
-.banner{
-    background:#e11d48;
-    color:white;
-    text-align:center;
-    padding:6px;
-}
+.banner{background:#e11d48;color:white;text-align:center;padding:6px}
 
-/* BUSCADOR */
-.search{
-    padding:10px;
-    width:90%;
-    margin:10px auto;
-    display:block;
-}
+/* BUSCAR */
+.search{padding:10px;width:90%;margin:10px auto;display:block}
 
 /* CATEGORIAS */
-.categorias{
-    display:flex;
-    gap:10px;
-    overflow-x:auto;
-    padding:10px;
-}
-.categorias button{
-    padding:8px 12px;
-    border:none;
-    border-radius:20px;
-}
+.categorias{display:flex;gap:10px;overflow-x:auto;padding:10px}
+.categorias button{padding:8px;border:none;border-radius:20px}
 
 /* GRID */
 #productos{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:15px;
-    padding:15px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;padding:15px
 }
-
-.card{
-    border:1px solid #eee;
-    border-radius:10px;
-    overflow:hidden;
-    cursor:pointer;
-}
-
-.card img{
-    width:100%;
-    height:220px;
-    object-fit:cover;
-}
+.card{border:1px solid #eee;border-radius:10px;cursor:pointer}
+.card img{width:100%;height:200px;object-fit:cover}
 
 /* MODAL */
-#modal{
-    display:none;
-    position:fixed;
-    top:0;left:0;
-    width:100%;height:100%;
-    background:rgba(0,0,0,0.6);
-}
-
-.modal-box{
-    background:white;
-    max-width:400px;
-    margin:80px auto;
-    padding:20px;
-    border-radius:10px;
-}
-
-.modal-box img{
-    width:100%;
-    height:200px;
-    object-fit:cover;
-    margin-bottom:5px;
-}
+#modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0007}
+.modal{background:white;max-width:400px;margin:80px auto;padding:20px;border-radius:10px}
+.modal img{width:100%;margin:5px}
 
 /* CARRITO */
 #carrito{
-    position:fixed;
-    right:-320px;
-    top:0;
-    width:300px;
-    height:100%;
-    background:white;
-    padding:15px;
-    transition:0.3s;
+  position:fixed;right:-300px;top:0;width:300px;height:100%;
+  background:white;padding:10px;transition:.3s;overflow:auto
 }
 
 /* WHATSAPP */
 .whatsapp{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:65px;
-    height:65px;
-    background:#25D366;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    animation:bounce 2s infinite;
+  position:fixed;bottom:20px;right:20px;background:#25D366;
+  width:65px;height:65px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  animation:bounce 2s infinite
 }
-
 .whatsapp img{width:35px}
-
-@keyframes bounce{
-    0%,100%{transform:translateY(0)}
-    50%{transform:translateY(-10px)}
-}
+@keyframes bounce{50%{transform:translateY(-10px)}}
 
 /* REDES */
-.redes{
-    position:fixed;
-    bottom:20px;
-    left:20px;
-}
-.redes img{
-    width:40px;
-    margin:5px;
-}
+.redes{position:fixed;bottom:20px;left:20px}
+.redes img{width:40px;margin:5px}
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logo">
-        <img src="/logo.png">
-    </div>
+  <div class="logo"><img src="/logo.png"></div>
 
-    <div class="cart-btn" onclick="toggleCarrito()">
-        🛒 <span id="count">0</span>
-    </div>
+  <div class="actions">
+    <button class="btn-auth" onclick="location.href='/login.html'">Ingresar</button>
+    <button class="btn-auth" onclick="location.href='/register.html'">Crear cuenta</button>
+    <div class="cart-btn" onclick="toggleCarrito()">🛒 <span id="count">0</span></div>
+  </div>
 </header>
 
 <div class="banner">Compra segura - Envíos discretos</div>
@@ -174,131 +85,119 @@ header{
 <input class="search" placeholder="Buscar..." onkeyup="buscar(this.value)">
 
 <div id="categorias" class="categorias"></div>
-
 <div id="productos"></div>
 
 <!-- MODAL -->
 <div id="modal">
-    <div class="modal-box">
-        <div id="imagenes"></div>
-        <h3 id="nombre"></h3>
-        <p id="precio"></p>
-
-        Cantidad:
-        <input id="cantidad" type="number" value="1">
-
-        <button onclick="agregar()">Agregar</button>
-        <button onclick="cerrar()">Cerrar</button>
-    </div>
+  <div class="modal">
+    <div id="imgs"></div>
+    <h3 id="name"></h3>
+    <p id="price"></p>
+    Cantidad:
+    <input id="qty" type="number" value="1">
+    <button onclick="add()">Agregar</button>
+    <button onclick="closeModal()">Cerrar</button>
+  </div>
 </div>
 
 <!-- CARRITO -->
 <div id="carrito">
-    <button onclick="toggleCarrito()">Cerrar</button>
-    <div id="lista"></div>
+  <button onclick="toggleCarrito()">Cerrar</button>
+  <div id="lista"></div>
 </div>
 
 <!-- WHATSAPP -->
-<a class="whatsapp" href="https://wa.me/573114676645">
-    <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
+<a class="whatsapp" href="https://wa.me/573114676645" target="_blank">
+  <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png">
 </a>
 
 <!-- REDES -->
 <div class="redes">
-    <a href="https://instagram.com" target="_blank">
-        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png">
-    </a>
-    <a href="https://tiktok.com" target="_blank">
-        <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png">
-    </a>
+  <a href="https://www.instagram.com/sex_shopvalkiria/" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png">
+  </a>
+  <a href="https://www.tiktok.com/@sex_shopvalkiria" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/3046/3046126.png">
+  </a>
 </div>
 
 <script>
-
-let productos = [];
-let filtrados = [];
-let carrito = [];
-let actual = null;
+let productos=[],filtrados=[],carritoArr=[],actual=null;
 
 async function cargar(){
-    const res = await fetch("/api/products");
-    productos = await res.json();
-
-    filtrados = productos;
-
-    categorias();
-    mostrar();
+  const res = await fetch("/api/products");
+  const data = await res.json();
+  productos = data;
+  filtrados = data;
+  renderCategorias();
+  renderProductos();
 }
 
-function categorias(){
-    const cats = ["Todos",...new Set(productos.map(p=>p.category||"General"))];
-    categorias.innerHTML="";
-    cats.forEach(c=>{
-        categorias.innerHTML+=`<button onclick="filtrar('${c}')">${c}</button>`;
-    });
+function renderCategorias(){
+  const cats = ["Todos", ...new Set(productos.map(p=>p.category||"General"))];
+  const cont = document.getElementById("categorias");
+  cont.innerHTML="";
+  cats.forEach(c=>{
+    cont.innerHTML += `<button onclick="filtrar('${c}')">${c}</button>`;
+  });
 }
 
 function filtrar(c){
-    filtrados = c==="Todos"?productos:productos.filter(p=>p.category===c);
-    mostrar();
+  filtrados = (c==="Todos") ? productos : productos.filter(p=>(p.category||"General")===c);
+  renderProductos();
 }
 
-function buscar(txt){
-    filtrados = productos.filter(p=>p.name.toLowerCase().includes(txt.toLowerCase()));
-    mostrar();
+function buscar(t){
+  const txt = t.toLowerCase();
+  filtrados = productos.filter(p=>p.name.toLowerCase().includes(txt));
+  renderProductos();
 }
 
-function mostrar(){
-    productosDiv.innerHTML="";
-    filtrados.forEach(p=>{
-        productosDiv.innerHTML+=`
-        <div class="card" onclick='ver(${JSON.stringify(p)})'>
-            <img src="${p.image}">
-            <div style="padding:10px">
-                <b>${p.name}</b><br>$${p.price}
-            </div>
-        </div>`;
-    });
+function renderProductos(){
+  const cont = document.getElementById("productos");
+  cont.innerHTML="";
+  filtrados.forEach(p=>{
+    const img = (p.images && p.images[0]) ? p.images[0] : "";
+    cont.innerHTML += `
+      <div class="card" onclick='ver(${JSON.stringify(p)})'>
+        <img src="${img}">
+        <div style="padding:10px"><b>${p.name}</b><br>$${p.price}</div>
+      </div>
+    `;
+  });
 }
 
 function ver(p){
-    actual=p;
-    modal.style.display="block";
-    nombre.textContent=p.name;
-    precio.textContent="$"+p.price;
-
-    imagenes.innerHTML="";
-
-    // múltiples fotos
-    if(p.images){
-        p.images.forEach(img=>{
-            imagenes.innerHTML+=`<img src="${img}">`;
-        });
-    }else{
-        imagenes.innerHTML=`<img src="${p.image}">`;
-    }
+  actual = p;
+  document.getElementById("modal").style.display="block";
+  document.getElementById("name").textContent=p.name;
+  document.getElementById("price").textContent="$"+p.price;
+  const imgs = document.getElementById("imgs");
+  imgs.innerHTML="";
+  (p.images||[]).forEach(i=>{
+    imgs.innerHTML += `<img src="${i}">`;
+  });
 }
 
-function cerrar(){
-    modal.style.display="none";
+function closeModal(){
+  document.getElementById("modal").style.display="none";
 }
 
-function agregar(){
-    const c = Number(cantidad.value);
-    for(let i=0;i<c;i++){
-        carrito.push(actual);
-    }
-    count.textContent=carrito.length;
-    cerrar();
+function add(){
+  const q = Number(document.getElementById("qty").value)||1;
+  for(let i=0;i<q;i++){ carritoArr.push(actual); }
+  document.getElementById("count").textContent = carritoArr.length;
+  closeModal();
 }
 
 function toggleCarrito(){
-    carrito.style.right = carrito.style.right==="0px"?"-320px":"0px";
+  const c = document.getElementById("carrito");
+  c.style.right = (c.style.right==="0px") ? "-300px" : "0px";
 }
 
 cargar();
-
 </script>
 
 </body>
 </html>
+<!-- CAMBIO REAL -->

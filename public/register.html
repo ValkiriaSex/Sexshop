@@ -1,14 +1,22 @@
-<input id="email">
-<input id="pass">
-<button onclick="reg()">Crear</button>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registro</title>
+</head>
+<body>
+
+<h2>Registro funcionando</h2>
+
+<input id="email" placeholder="Correo"><br>
+<input id="password" placeholder="Contraseña"><br>
+
+<button onclick="register()">Crear</button>
 
 <script>
-async function reg(){
-await fetch("/api/register",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({email:email.value,pass:pass.value})
-});
-alert("Cuenta creada");
+async function register(){
+  alert("FUNCIONA");
 }
 </script>
+
+</body>
+</html>

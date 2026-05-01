@@ -1,96 +1,50 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Admin</title>
-<style>
-body{font-family:Arial;background:#020617;color:white;text-align:center;}
-input,textarea{padding:10px;margin:5px;width:260px;}
-button{padding:10px;margin:5px;border:none;color:white;cursor:pointer;}
-.guardar{background:#e11d48;}
-.eliminar{background:red;}
-</style>
-</head>
 <body>
 
-<h2>Admin</h2>
+<h2>Panel Admin</h2>
 
 <input id="name" placeholder="Nombre"><br>
 <input id="price" placeholder="Precio"><br>
 <input id="category" placeholder="Categoría"><br>
 <textarea id="desc" placeholder="Descripción"></textarea><br>
-<input type="file" id="image"><br>
 
-<button class="guardar" onclick="guardar()">Guardar</button>
+<input type="file" id="images" multiple><br>
 
-<div id="lista"></div>
+<button onclick="guardar()">Guardar</button>
 
 <script>
+// PROTEGER
+const admin = JSON.parse(localStorage.getItem("admin"));
+if(!admin){
+  location.href="/admin-login.html";
+}
 
-let productos = [];
-let editando = null;
-
+// GUARDAR PRODUCTO
 async function guardar(){
+  const f = new FormData();
 
-    const formData = new FormData();
+  f.append("name", name.value);
+  f.append("price", price.value);
+  f.append("category", category.value);
+  f.append("description", desc.value);
 
-    formData.append("name", name.value);
-    formData.append("price", price.value);
-    formData.append("category", category.value);
-    formData.append("description", desc.value);
+  for(let file of images.files){
+    f.append("images", file);
+  }
 
-    if(image.files[0]){
-        formData.append("image", image.files[0]);
-    }
+  await fetch("/api/products",{
+    method:"POST",
+    headers:{
+      email: admin.email,
+      password: admin.password
+    },
+    body: f
+  });
 
-    if(editando){
-        await fetch("/api/products/"+editando,{method:"PUT",body:formData});
-        editando=null;
-    }else{
-        await fetch("/api/products",{method:"POST",body:formData});
-    }
-
-    cargar();
+  alert("Producto guardado");
 }
-
-async function cargar(){
-
-    const res = await fetch("/api/products");
-    productos = await res.json();
-
-    lista.innerHTML="";
-
-    productos.forEach(p=>{
-        lista.innerHTML+=`
-        <div>
-        ${p.name} - ${p.price}<br>
-        Categoria: ${p.category || "General"}<br>
-
-        <button onclick="editar(${p.id})">Editar</button>
-        <button onclick="eliminar(${p.id})">Eliminar</button>
-        <hr>
-        </div>`;
-    });
-}
-
-function editar(id){
-    const p = productos.find(x=>x.id===id);
-
-    name.value=p.name;
-    price.value=p.price;
-    category.value=p.category||"";
-    desc.value=p.description;
-
-    editando=id;
-}
-
-async function eliminar(id){
-    await fetch("/api/products/"+id,{method:"DELETE"});
-    cargar();
-}
-
-cargar();
-
 </script>
+
 </body>
 </html>

@@ -1,105 +1,60 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static("public"));
 
-// =====================
-// CONFIGURAR SUBIDA DE IMÁGENES
-// =====================
-const storage = multer.diskStorage({
-    destination: "public/uploads",
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "-" + file.originalname);
-    }
-});
-
-const upload = multer({ storage });
-
-// =====================
+// ===== DATOS =====
+let usuarios = [];
 let productos = [];
-let pedidos = [];
 
 // =====================
-// AGREGAR PRODUCTO CON IMAGEN + CATEGORÍA
+// REGISTRO
 // =====================
-app.post("/api/products", upload.single("image"), (req, res) => {
+app.post("/api/register", (req, res) => {
 
-    const { name, price, description, category } = req.body;
+    console.log("REGISTER HIT");
 
-    let image = "";
-    if(req.file){
-        image = "/uploads/" + req.file.filename;
+    const { email, password } = req.body;
+
+    if(!email || !password){
+        return res.json({ ok:false });
     }
 
-    productos.push({
-        id: Date.now(),
-        name,
-        price,
-        description,
-        category, // 🔥 AQUÍ SE GUARDA
-        image
-    });
+    const existe = usuarios.find(u => u.email === email);
 
-    res.json({ ok: true });
+    if(existe){
+        return res.json({ ok:false });
+    }
+
+    usuarios.push({ email, password });
+
+    res.json({ ok:true });
 });
 
 // =====================
-// OBTENER PRODUCTOS
+// LOGIN
 // =====================
-app.get("/api/products", (req, res) => {
+app.post("/api/login", (req, res) => {
+
+    const { email, password } = req.body;
+
+    const user = usuarios.find(
+        u => u.email === email && u.password === password
+    );
+
+    if(user){
+        return res.json({ ok:true });
+    }
+
+    res.json({ ok:false });
+});
+
+// =====================
+app.get("/api/products", (req,res)=>{
     res.json(productos);
-});
-
-// =====================
-// ELIMINAR PRODUCTO
-// =====================
-app.delete("/api/products/:id", (req, res) => {
-    const id = Number(req.params.id);
-    productos = productos.filter(p => p.id !== id);
-    res.json({ ok: true });
-});
-
-// =====================
-// EDITAR PRODUCTO (CON CATEGORÍA)
-// =====================
-app.put("/api/products/:id", upload.single("image"), (req, res) => {
-
-    const id = Number(req.params.id);
-    const p = productos.find(x => x.id === id);
-
-    if(!p) return res.json({ error: true });
-
-    p.name = req.body.name;
-    p.price = req.body.price;
-    p.description = req.body.description;
-    p.category = req.body.category; // 🔥 IMPORTANTE
-
-    if(req.file){
-        p.image = "/uploads/" + req.file.filename;
-    }
-
-    res.json({ ok: true });
-});
-
-// =====================
-// PEDIDOS
-// =====================
-app.post("/api/pedido", (req, res) => {
-    pedidos.push({
-        id: Date.now(),
-        items: req.body.items,
-        total: req.body.total
-    });
-
-    res.json({ ok: true });
-});
-
-app.get("/api/pedidos", (req, res) => {
-    res.json(pedidos);
 });
 
 // =====================

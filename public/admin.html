@@ -1,47 +1,37 @@
 <!DOCTYPE html>
 <html>
-<body>
+<body style="background:#020617;color:white;text-align:center;margin-top:80px;font-family:Arial">
 
-<h2>Panel Admin</h2>
+<h2>Login</h2>
 
-<input id="name" placeholder="Nombre"><br>
-<input id="price" placeholder="Precio"><br>
-<input id="category" placeholder="Categoría"><br>
-<textarea id="desc" placeholder="Descripción"></textarea><br>
+<input id="email"><br>
+<input id="password" type="password"><br>
 
-<input type="file" id="images" multiple><br>
-
-<button onclick="guardar()">Guardar</button>
+<button onclick="login()">Entrar</button>
 
 <script>
-const admin = JSON.parse(localStorage.getItem("admin"));
-if(!admin){
-  location.href="/admin-login.html";
-}
+async function login(){
+  const email=emailInput.value;
+  const password=passwordInput.value;
 
-async function guardar(){
-  const f = new FormData();
-
-  f.append("name", name.value);
-  f.append("price", price.value);
-  f.append("category", category.value);
-  f.append("description", desc.value);
-
-  for(let file of images.files){
-    f.append("images", file);
-  }
-
-  await fetch("/api/products",{
+  const res=await fetch("/api/login",{
     method:"POST",
-    headers:{
-      email: admin.email,
-      password: admin.password
-    },
-    body: f
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email, password })
   });
 
-  alert("Producto guardado");
+  const data=await res.json();
+
+  if(data.ok){
+    localStorage.setItem("user",email);
+    location.href="/";
+  }else{
+    alert("Error");
+  }
 }
+
+const emailInput=document.getElementById("email");
+const passwordInput=document.getElementById("password");
 </script>
 
 </body>

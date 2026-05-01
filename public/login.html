@@ -6,24 +6,17 @@
 
 <style>
 body {
-    margin:0;
-    font-family:Arial;
     background:#020617;
     color:white;
+    font-family:Arial;
     text-align:center;
-}
-
-.container { margin-top:80px; }
-
-.logo img {
-    height:60px;
-    margin-bottom:20px;
+    margin-top:80px;
 }
 
 input {
     padding:12px;
-    width:250px;
     margin:10px;
+    width:250px;
     border-radius:8px;
     border:none;
 }
@@ -31,30 +24,16 @@ input {
 button {
     padding:12px;
     width:270px;
-    margin:10px;
-    border:none;
-    border-radius:8px;
     background:#e11d48;
     color:white;
-    cursor:pointer;
-}
-
-.link {
-    display:block;
-    margin-top:10px;
-    color:#e11d48;
+    border:none;
+    border-radius:8px;
     cursor:pointer;
 }
 </style>
 </head>
 
 <body>
-
-<div class="container">
-
-<div class="logo">
-    <img src="/logo.png">
-</div>
 
 <h2>Iniciar sesión</h2>
 
@@ -63,29 +42,27 @@ button {
 
 <button onclick="login()">Entrar</button>
 
-<span class="link" onclick="location.href='/register.html'">
-Crear cuenta
-</span>
-
-</div>
+<br><br>
+<a href="/register.html" style="color:#e11d48">Crear cuenta</a>
 
 <script>
 async function login(){
+
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    const res = await fetch("/api/login", {
+    const res = await fetch("/api/login",{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({email, password})
+        body: JSON.stringify({ email, password })
     });
 
     const data = await res.json();
 
-    if(data.token){
+    if(data.ok){
         alert("Bienvenido");
-        window.location.href = "/";
-    } else {
+        location.href="/";
+    }else{
         alert("Datos incorrectos");
     }
 }

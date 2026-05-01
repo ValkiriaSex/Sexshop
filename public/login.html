@@ -1,49 +1,13 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Login</title>
+<body style="background:#020617;color:white;text-align:center;margin-top:80px">
 
-<style>
-body {
-    background:#020617;
-    color:white;
-    font-family:Arial;
-    text-align:center;
-    margin-top:80px;
-}
-
-input {
-    padding:12px;
-    margin:10px;
-    width:250px;
-    border-radius:8px;
-    border:none;
-}
-
-button {
-    padding:12px;
-    width:270px;
-    background:#e11d48;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
-</style>
-</head>
-
-<body>
-
-<h2>Iniciar sesión</h2>
+<h2>Login</h2>
 
 <input id="email" placeholder="Correo"><br>
 <input id="password" type="password" placeholder="Contraseña"><br>
 
 <button onclick="login()">Entrar</button>
-
-<br><br>
-<a href="/register.html" style="color:#e11d48">Crear cuenta</a>
 
 <script>
 async function login(){
@@ -53,7 +17,9 @@ async function login(){
 
     const res = await fetch("/api/login",{
         method:"POST",
-        headers:{ "Content-Type":"application/json" },
+        headers:{
+            "Content-Type":"application/json"
+        },
         body: JSON.stringify({ email, password })
     });
 

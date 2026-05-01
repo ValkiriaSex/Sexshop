@@ -1,20 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <title>Registro</title>
+
+<style>
+body {
+    background:#020617;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    margin-top:80px;
+}
+
+input {
+    padding:12px;
+    margin:10px;
+    width:250px;
+    border-radius:8px;
+    border:none;
+}
+
+button {
+    padding:12px;
+    width:270px;
+    background:#e11d48;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-<h2>Registro funcionando</h2>
+<h2>Crear cuenta</h2>
 
 <input id="email" placeholder="Correo"><br>
-<input id="password" placeholder="Contraseña"><br>
+<input id="password" type="password" placeholder="Contraseña"><br>
 
-<button onclick="register()">Crear</button>
+<button onclick="register()">Crear cuenta</button>
+
+<br><br>
+<a href="/login.html" style="color:#e11d48">Ya tengo cuenta</a>
 
 <script>
 async function register(){
-  alert("FUNCIONA");
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/register",{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if(data.ok){
+        alert("Cuenta creada");
+        location.href="/login.html";
+    }else{
+        alert("Error o usuario ya existe");
+    }
 }
 </script>
 

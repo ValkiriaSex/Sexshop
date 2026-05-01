@@ -14,13 +14,11 @@
 <button onclick="guardar()">Guardar</button>
 
 <script>
-// PROTEGER
 const admin = JSON.parse(localStorage.getItem("admin"));
 if(!admin){
   location.href="/admin-login.html";
 }
 
-// GUARDAR PRODUCTO
 async function guardar(){
   const f = new FormData();
 

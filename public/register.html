@@ -1,12 +1,11 @@
-<h1>PRUEBA REAL</h1>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Registro</title>
+<title>Crear cuenta</title>
 
 <style>
-body {
+body{
     background:#020617;
     color:white;
     font-family:Arial;
@@ -14,28 +13,33 @@ body {
     margin-top:80px;
 }
 
-input {
+input{
     padding:12px;
     margin:10px;
-    width:250px;
+    width:260px;
     border-radius:8px;
     border:none;
 }
 
-button {
+button{
     padding:12px;
-    width:270px;
+    width:280px;
     background:#e11d48;
     color:white;
     border:none;
     border-radius:8px;
     cursor:pointer;
 }
+
+.msg{ margin-top:10px; }
+.error{ color:red; }
+.ok{ color:lime; }
 </style>
 </head>
 
 <body>
 
+<h1>PRUEBA REAL</h1>
 <h2>Crear cuenta</h2>
 
 <input id="email" placeholder="Correo"><br>
@@ -43,7 +47,9 @@ button {
 
 <button onclick="register()">Crear cuenta</button>
 
-<br><br>
+<div id="msg" class="msg"></div>
+
+<br>
 <a href="/login.html" style="color:#e11d48">Ya tengo cuenta</a>
 
 <script>
@@ -51,20 +57,41 @@ async function register(){
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
 
-    const res = await fetch("/api/register",{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ email, password })
-    });
+    console.log("CLICK detectado");
 
-    const data = await res.json();
+    if(!email || !password){
+        msg.innerHTML = "<span class='error'>Completa los campos</span>";
+        return;
+    }
 
-    if(data.ok){
-        alert("Cuenta creada");
-        location.href="/login.html";
-    }else{
-        alert("Error o usuario ya existe");
+    try{
+
+        const res = await fetch("/api/register",{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        const data = await res.json();
+
+        console.log("RESPUESTA:", data);
+
+        if(data.ok){
+            msg.innerHTML = "<span class='ok'>Cuenta creada</span>";
+        }else{
+            msg.innerHTML = "<span class='error'>Usuario ya existe</span>";
+        }
+
+    }catch(error){
+        console.log("ERROR:", error);
+        msg.innerHTML = "<span class='error'>Error de conexión</span>";
     }
 }
 </script>

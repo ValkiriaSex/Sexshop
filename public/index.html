@@ -2,80 +2,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Tienda</title>
+<title>Valkiria</title>
+
 <style>
-body{margin:0;font-family:Arial}
-header{background:#020617;color:white;padding:15px;display:flex;justify-content:space-between}
-.btn{background:#e11d48;color:white;border:none;padding:8px 12px;border-radius:20px;cursor:pointer}
-#productos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;padding:15px}
-.card{border:1px solid #eee;border-radius:10px;cursor:pointer}
-.card img{width:100%;height:200px;object-fit:cover}
-#modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0007}
-.modal{background:white;max-width:400px;margin:80px auto;padding:20px;border-radius:10px}
-</style>
-</head>
-<body>
-
-<header>
-  <div>Valkiria</div>
-  <div>
-    <button class="btn" onclick="location.href='/login.html'">Login</button>
-    <button class="btn" onclick="location.href='/register.html'">Registro</button>
-  </div>
-</header>
-
-<div id="productos"></div>
-
-<div id="modal">
-  <div class="modal">
-    <div id="imgs"></div>
-    <h3 id="name"></h3>
-    <p id="price"></p>
-    <button onclick="closeModal()">Cerrar</button>
-  </div>
-</div>
-
-<script>
-let productos=[],actual=null;
-
-async function cargar(){
-  const res=await fetch("/api/products");
-  productos=await res.json();
-  mostrar();
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0b0f1a;
 }
 
-function mostrar(){
-  productosDiv.innerHTML="";
-  productos.forEach(p=>{
-    productosDiv.innerHTML+=`
-      <div class="card" onclick='ver(${JSON.stringify(p)})'>
-        <img src="${p.images?.[0]||''}">
-        <div>${p.name}<br>$${p.price}</div>
-      </div>`;
-  });
+/* HEADER */
+header{
+    background:#020617;
+    color:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 20px;
 }
 
-function ver(p){
-  actual=p;
-  modal.style.display="block";
-  name.textContent=p.name;
-  price.textContent="$"+p.price;
-  imgs.innerHTML="";
-  (p.images||[]).forEach(i=>imgs.innerHTML+=`<img src="${i}" style="width:100%">`);
-}
-
-function closeModal(){
-  modal.style.display="none";
-}
-
-const productosDiv=document.getElementById("productos");
-const modal=document.getElementById("modal");
-const name=document.getElementById("name");
-const price=document.getElementById("price");
-const imgs=document.getElementById("imgs");
-
-cargar();
-</script>
-
-</body>
-</html>
+.logo
